@@ -1,35 +1,25 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, ConflictException, NotFoundException } from '@nestjs/common';
 import { CreateCustomerDto } from '../dto/create-customer.dto';
 import { LoginCustomerDto } from '../dto/login-customer.dto';
 import { UpdateCustomerDto } from '../dto/update-customer.dto';
-import { SerializedUser } from '../types';
+import { SerializedCustomer } from '../types';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm'
+import { Customer } from 'src/typeorm';
 
 @Injectable()
 export class CustomersService {
 
-  private customers = [
-    {
-      username: 'user1',
-      first_name: 'user',
-      last_name: 'test',
-      password: '123455667'
-    },
-    {
-      username: 'user2',
-      first_name: 'user2',
-      last_name: 'test',
-      password: '123455667'
-    },
-    {
-      username: 'user3',
-      first_name: 'user3',
-      last_name: 'test',
-      password: '123455667'
-    },
-  ]
+  constructor(@InjectRepository(Customer) private readonly customersRepository: Repository<Customer>) {}
 
-  create(createCustomerDto: CreateCustomerDto) {
-    return 'Create customer'
+  async create(createCustomerDto: CreateCustomerDto): Promise<SerializedCustomer> {
+    const user = await this.getCustomerByUsername(createCustomerDto.username);
+
+    if (user) throw new ConflictException('This username already exists');
+
+    const newCustomer = this.customersRepository.create(createCustomerDto);
+
+    return new SerializedCustomer(await this.customersRepository.save(newCustomer))
   }
 
   login(loginCustomerDto: LoginCustomerDto) {
@@ -38,7 +28,15 @@ export class CustomersService {
 
   getCustomers() {
     // @UseInterceptors(ClassSerializerInterceptor) to decorate tge controller using it
-    return this.customers.map(customer => new SerializedUser(customer))
+    return this.customersRepository.find()
+  }
+
+  async getCustomerByUsername(username: string): Promise<SerializedCustomer | null> {
+    const customer = await this.customersRepository.findOne({ where: { username } });
+
+    if (!customer) return null;
+
+    return new SerializedCustomer(customer)
   }
 
   findOne(id: number) {

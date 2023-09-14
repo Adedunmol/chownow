@@ -21,6 +21,6 @@ export class CreateCustomerDto {
     @IsString()
     @IsNotEmpty()
     @IsStrongPassword({ minLength: 6, minLowercase: 1, minNumbers: 1, minUppercase: 1 })
-    @ApiProperty({ default: 'Password1234', minimum: 6 })
+    @ApiProperty({ default: 'Password@1234', minimum: 6 })
     password: string;
 }
