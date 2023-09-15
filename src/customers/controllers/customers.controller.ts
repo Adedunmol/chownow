@@ -2,7 +2,7 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, UsePipes, Validation
 import { CustomersService } from '../services/customers.service';
 import { UpdateCustomerDto } from '../dto/update-customer.dto';
 import { CreateCustomerDto } from '../dto/create-customer.dto';
-import { ApiTags, ApiConflictResponse, ApiCreatedResponse } from '@nestjs/swagger';
+import { ApiTags, ApiConflictResponse, ApiCreatedResponse, ApiBadRequestResponse } from '@nestjs/swagger';
 import { LoginCustomerDto } from '../dto/login-customer.dto';
 
 @Controller('customers')
@@ -14,6 +14,7 @@ export class CustomersController {
   @UsePipes(ValidationPipe)
   @UseInterceptors(ClassSerializerInterceptor)
   @ApiCreatedResponse({ description: 'Customer successfully created' })
+  @ApiBadRequestResponse({ description: 'Bad Request' })
   @ApiConflictResponse({ description: 'Conflict' })
   registerCustomer(@Body() createCustomerDto: CreateCustomerDto) {
     return this.customersService.create(createCustomerDto);

@@ -5,7 +5,7 @@ import { UpdateCustomerDto } from '../dto/update-customer.dto';
 import { SerializedCustomer } from '../types';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm'
-import { Customer } from 'src/typeorm';
+import { Customer } from '../../typeorm';
 
 @Injectable()
 export class CustomersService {
