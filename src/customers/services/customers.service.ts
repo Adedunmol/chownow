@@ -6,6 +6,7 @@ import { SerializedCustomer } from '../types';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm'
 import { Customer } from '../../typeorm';
+import { encodePassword } from 'src/utils/bcrypt';
 
 @Injectable()
 export class CustomersService {
@@ -16,8 +17,9 @@ export class CustomersService {
     const user = await this.getCustomerByUsername(createCustomerDto.username);
 
     if (user) throw new ConflictException('This username already exists');
-
-    const newCustomer = this.customersRepository.create(createCustomerDto);
+    
+    const password = await encodePassword(createCustomerDto.password);
+    const newCustomer = this.customersRepository.create({ ...createCustomerDto, password });
 
     return new SerializedCustomer(await this.customersRepository.save(newCustomer))
   }
