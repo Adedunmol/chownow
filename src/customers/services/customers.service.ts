@@ -6,7 +6,7 @@ import { SerializedCustomer } from '../types';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm'
 import { Customer } from '../../typeorm';
-import { encodePassword } from 'src/utils/bcrypt';
+import { encodePassword } from '../../utils/bcrypt';
 
 @Injectable()
 export class CustomersService {
