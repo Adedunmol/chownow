@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
-import { CustomersService } from 'src/customers/services/customers.service';
+import { CustomersService } from '../customers/services/customers.service';
 import { CustomerPayload } from './types';
 import { ConfigService } from '@nestjs/config';
 
@@ -16,8 +16,6 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     }
 
     async validate(payload: CustomerPayload) {
-        console.log(`inside jwt strategy: ${process.env.JWT_SECRET}`)
-        console.log(payload)
         const customer = await this.customersService.findById(payload.sub);
         return customer;
     }

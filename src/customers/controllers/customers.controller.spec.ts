@@ -1,6 +1,11 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { CustomersController } from './customers.controller';
 import { CustomersService } from '../services/customers.service';
+import { AuthService } from '../../auth/auth.service';
+import { forwardRef } from '@nestjs/common';
+import { AuthModule } from '../../auth/auth.module';
+import { ConfigModule } from '@nestjs/config';
+import { TypeOrmModule } from '@nestjs/typeorm';
 
 describe('CustomersController', () => {
   let controller: CustomersController;
@@ -12,11 +17,14 @@ describe('CustomersController', () => {
     })
   }
 
+  const mockAuthService = {}
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
+      // imports: [AuthModule],
       controllers: [CustomersController],
-      providers: [CustomersService],
-    }).overrideProvider(CustomersService).useValue(mockCustomersService).compile();
+      providers: [CustomersService, AuthService],
+    }).overrideProvider(CustomersService).useValue(mockCustomersService).overrideProvider(AuthService).useValue(mockAuthService).compile();
 
     controller = module.get<CustomersController>(CustomersController);
   });
