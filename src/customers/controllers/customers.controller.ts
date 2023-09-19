@@ -1,14 +1,17 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UsePipes, ValidationPipe, UseInterceptors, ClassSerializerInterceptor } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UsePipes, Request, ValidationPipe, UseInterceptors, ClassSerializerInterceptor, UseGuards } from '@nestjs/common';
 import { CustomersService } from '../services/customers.service';
 import { UpdateCustomerDto } from '../dto/update-customer.dto';
 import { CreateCustomerDto } from '../dto/create-customer.dto';
 import { ApiTags, ApiConflictResponse, ApiCreatedResponse, ApiBadRequestResponse } from '@nestjs/swagger';
 import { LoginCustomerDto } from '../dto/login-customer.dto';
+import { LocalAuthGuard } from 'src/auth/local-auth.guard';
+import { AuthService } from 'src/auth/auth.service';
+import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 
 @Controller('customers')
 @ApiTags('customers')
 export class CustomersController {
-  constructor(private readonly customersService: CustomersService) {}
+  constructor(private readonly customersService: CustomersService, private readonly authService: AuthService) {}
 
   @Post('register')
   @UsePipes(ValidationPipe)
@@ -20,13 +23,16 @@ export class CustomersController {
     return this.customersService.create(createCustomerDto);
   }
 
+  @UseGuards(LocalAuthGuard)
   @Post('login')
   @UsePipes(ValidationPipe)
-  loginCustomer(@Body() loginCustomerDto: LoginCustomerDto) {
-    return this.customersService.login(loginCustomerDto)
+  loginCustomer(@Request() req) {
+    return this.authService.login(req.user)
   }
 
+  @UseGuards(JwtAuthGuard)
   @Get()
+  @UseInterceptors(ClassSerializerInterceptor)
   getCustomers() {
     return this.customersService.getCustomers();
   }

@@ -14,27 +14,31 @@ export class CustomersService {
   constructor(@InjectRepository(Customer) private readonly customersRepository: Repository<Customer>) {}
 
   async create(createCustomerDto: CreateCustomerDto): Promise<SerializedCustomer> {
-    const user = await this.getCustomerByUsername(createCustomerDto.username);
+    const user = await this.findByUsername(createCustomerDto.username);
 
     if (user) throw new ConflictException('This username already exists');
     
-    const password = await encodePassword(createCustomerDto.password);
+    const password = encodePassword(createCustomerDto.password);
     const newCustomer = this.customersRepository.create({ ...createCustomerDto, password });
 
     return new SerializedCustomer(await this.customersRepository.save(newCustomer))
   }
 
-  login(loginCustomerDto: LoginCustomerDto) {
-    return 'Login customer'
+  async getCustomers() {
+    // @UseInterceptors(ClassSerializerInterceptor) to decorate the controller using it
+    return (await this.customersRepository.find()).map(customer => new SerializedCustomer(customer))
   }
 
-  getCustomers() {
-    // @UseInterceptors(ClassSerializerInterceptor) to decorate tge controller using it
-    return this.customersRepository.find()
-  }
-
-  async getCustomerByUsername(username: string): Promise<SerializedCustomer | null> {
+  async findByUsername(username: string): Promise<SerializedCustomer | null> {
     const customer = await this.customersRepository.findOne({ where: { username } });
+
+    if (!customer) return null;
+
+    return new SerializedCustomer(customer)
+  }
+
+  async findById(id: number): Promise<SerializedCustomer | null> {
+    const customer = await this.customersRepository.findOne({ where: { id } });
 
     if (!customer) return null;
 
