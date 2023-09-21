@@ -24,7 +24,7 @@ export class CustomersService {
     return new SerializedCustomer(await this.customersRepository.save(newCustomer))
   }
 
-  async getCustomers() {
+  async findCustomers() {
     // @UseInterceptors(ClassSerializerInterceptor) to decorate the controller using it
     return (await this.customersRepository.find()).map(customer => new SerializedCustomer(customer))
   }

@@ -7,13 +7,16 @@ import { ConflictException } from '@nestjs/common';
 describe('CustomersService', () => {
   let service: CustomersService;
 
+  const customers = [{ id: 1, username: 'test1', first_name: 'test1', last_name: 'user1', date_joined: Date.now() }]
+
   const mockCustomersRepository = {
     create: jest.fn(dto => dto),
     save: jest.fn(dto => { 
       const { password, ...others } = dto
       return Promise.resolve({ id: Date.now(), ...others, date_joined: new Date() }) 
     }),
-    findOne: jest.fn(query => null)
+    findOne: jest.fn(query => null),
+    find: jest.fn(() => customers),
   }
 
   beforeEach(async () => {
@@ -53,6 +56,42 @@ describe('CustomersService', () => {
 
       expect(async () => await service.create(dto)).rejects.toEqual(new ConflictException('This username already exists'))
 
+    })
+  })
+
+  describe('getCustomers', () => {
+
+    it('should get all customers', async () => {
+
+      expect(await service.findCustomers()).toEqual(customers)
+    })
+  })
+
+  describe('findByUsername', () => {
+
+    it('should get a customer', async () => {
+      mockCustomersRepository.findOne.mockImplementation((query) => customers[0])
+
+      expect(await service.findByUsername('test1')).toEqual(customers[0])
+    })
+
+    it('should return null', async () => {
+
+      expect(await service.findByUsername('test1')).toEqual(customers[0])
+    })
+  })
+
+  describe('findById', () => {
+
+    it('should get a customer', async () => {
+      mockCustomersRepository.findOne.mockImplementation((query) => customers[0])
+
+      expect(await service.findById(1)).toEqual(customers[0])
+    })
+
+    it('should return null', async () => {
+
+      expect(await service.findById(1)).toEqual(customers[0])
     })
   })
 });

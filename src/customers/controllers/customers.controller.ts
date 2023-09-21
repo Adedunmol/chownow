@@ -1,8 +1,8 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UsePipes, Request, ValidationPipe, UseInterceptors, ClassSerializerInterceptor, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UsePipes, Request, ValidationPipe, UseInterceptors, ClassSerializerInterceptor, UseGuards, HttpCode } from '@nestjs/common';
 import { CustomersService } from '../services/customers.service';
 import { UpdateCustomerDto } from '../dto/update-customer.dto';
 import { CreateCustomerDto } from '../dto/create-customer.dto';
-import { ApiTags, ApiConflictResponse, ApiCreatedResponse, ApiBadRequestResponse } from '@nestjs/swagger';
+import { ApiTags, ApiConflictResponse, ApiCreatedResponse, ApiBadRequestResponse, ApiOkResponse, ApiUnauthorizedResponse } from '@nestjs/swagger';
 import { LoginCustomerDto } from '../dto/login-customer.dto';
 import { LocalAuthGuard } from '../../auth/local-auth.guard';
 import { AuthService } from '../../auth/auth.service';
@@ -26,6 +26,9 @@ export class CustomersController {
   @UseGuards(LocalAuthGuard)
   @Post('login')
   @UsePipes(ValidationPipe)
+  @HttpCode(200)
+  @ApiOkResponse({ description: 'Success' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
   loginCustomer(@Request() req) {
     return this.authService.login(req.user)
   }
@@ -34,7 +37,7 @@ export class CustomersController {
   @Get()
   @UseInterceptors(ClassSerializerInterceptor)
   getCustomers() {
-    return this.customersService.getCustomers();
+    return this.customersService.findCustomers();
   }
 
   @Get(':id')

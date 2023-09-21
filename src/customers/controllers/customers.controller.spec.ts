@@ -2,13 +2,18 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { CustomersController } from './customers.controller';
 import { CustomersService } from '../services/customers.service';
 import { AuthService } from '../../auth/auth.service';
-import { forwardRef } from '@nestjs/common';
-import { AuthModule } from '../../auth/auth.module';
-import { ConfigModule } from '@nestjs/config';
-import { TypeOrmModule } from '@nestjs/typeorm';
 
 describe('CustomersController', () => {
   let controller: CustomersController;
+
+  const customer = {
+    id: Date.now(),
+    username: 'test',
+    first_name: 'test',
+    password: 'password',
+    last_name: 'user',
+    date_joined: new Date()
+  }
 
   const mockCustomersService = {
     create: jest.fn((dto) => {
@@ -17,7 +22,9 @@ describe('CustomersController', () => {
     })
   }
 
-  const mockAuthService = {}
+  const mockAuthService = {
+    login: jest.fn(dto => ({ access_token: 'some random string' }))
+  }
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -47,6 +54,20 @@ describe('CustomersController', () => {
 
       expect(mockCustomersService.create).toHaveBeenCalled()
     })
+  })
+
+  describe('loginCustomer', () => {
     
+    it('should login customer', () => {
+      const req = {
+        user: customer
+      }
+
+      expect(controller.loginCustomer(req)).toEqual({
+       access_token: expect.any(String) 
+      })
+
+      expect(mockAuthService.login).toHaveBeenCalled()
+    })
   })
 });
