@@ -5,6 +5,7 @@ import { CustomersModule } from './customers/customers.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import entities from './typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { RestaurantsModule } from './restaurants/restaurants.module';
 
 
 @Module({
@@ -21,7 +22,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
       synchronize: true
     }),
     inject: [ConfigService]
-  }), CustomersModule,],
+  }), CustomersModule, RestaurantsModule,],
   controllers: [AppController],
   providers: [AppService],
 })
