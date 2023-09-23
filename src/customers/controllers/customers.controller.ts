@@ -4,9 +4,9 @@ import { UpdateCustomerDto } from '../dto/update-customer.dto';
 import { CreateCustomerDto } from '../dto/create-customer.dto';
 import { ApiTags, ApiConflictResponse, ApiCreatedResponse, ApiBadRequestResponse, ApiOkResponse, ApiUnauthorizedResponse } from '@nestjs/swagger';
 import { LoginCustomerDto } from '../dto/login-customer.dto';
-import { LocalAuthGuard } from '../../auth/local-auth.guard';
-import { AuthService } from '../../auth/auth.service';
-import { JwtAuthGuard } from '../../auth/jwt-auth.guard';
+import { LocalAuthGuard } from '../auth/local-auth.guard';
+import { AuthService } from '../auth/auth.service';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
 @Controller('customers')
 @ApiTags('customers')

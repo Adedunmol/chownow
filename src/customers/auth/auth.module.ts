@@ -1,5 +1,5 @@
 import { forwardRef, Module } from '@nestjs/common';
-import { CustomersModule } from '../customers/customers.module';
+import { CustomersModule } from '../customers.module';
 import { AuthService } from './auth.service';
 import { PassportModule } from '@nestjs/passport';
 import { LocalStrategy } from './local.strategy';

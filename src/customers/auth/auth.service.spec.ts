@@ -1,8 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { CustomersService } from '../customers/services/customers.service';
+import { CustomersService } from '../services/customers.service';
 import { AuthService } from './auth.service';
 import { JwtService } from '@nestjs/jwt';
-import * as passwordModule from '../utils/bcrypt';
+import * as passwordModule from '../../utils/bcrypt';
 
 describe('AuthService', () => {
   let service: AuthService;

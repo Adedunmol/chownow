@@ -4,9 +4,9 @@ import * as request from 'supertest';
 import { CustomersModule } from '../src/customers/customers.module';
 import { Customer } from '../src/typeorm';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { AuthModule } from '../src/auth/auth.module';
+import { AuthModule } from '../src/customers/auth/auth.module';
 import { ConfigModule } from '@nestjs/config';
-import { AuthService } from '../src/auth/auth.service';
+import { AuthService } from '../src/customers/auth/auth.service';
 import { JwtService } from '@nestjs/jwt';
 
 describe('CustomerController (e2e)', () => {
