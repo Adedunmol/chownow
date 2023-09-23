@@ -12,6 +12,14 @@ export class RestaurantsService {
     return `This action returns all restaurants`;
   }
 
+  findByName(name: string) {
+    return 'Restaurant'
+  }
+
+  findById(id: number) {
+    return {}
+  }
+
   findOne(id: number) {
     return `This action returns a #${id} restaurant`;
   }
