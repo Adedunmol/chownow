@@ -9,7 +9,7 @@ export class Restaurant {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @Column()
+    @Column({ unique: true })
     restaurant_name: string;
 
     @Column()

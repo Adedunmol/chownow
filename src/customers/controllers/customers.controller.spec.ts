@@ -28,7 +28,6 @@ describe('CustomersController', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      // imports: [AuthModule],
       controllers: [CustomersController],
       providers: [CustomersService, AuthService],
     }).overrideProvider(CustomersService).useValue(mockCustomersService).overrideProvider(AuthService).useValue(mockAuthService).compile();

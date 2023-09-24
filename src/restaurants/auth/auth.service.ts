@@ -11,7 +11,7 @@ export class AuthService {
     async validateRestaurant(username: string, password: string) {
         const restaurant = await this.restaurantsService.findByName(username);
 
-        if (restaurant && comparePassword(password, restaurant)) {
+        if (restaurant && comparePassword(password, restaurant.password)) {
             return restaurant
         }
 

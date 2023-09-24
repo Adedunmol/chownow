@@ -59,7 +59,7 @@ describe('CustomersService', () => {
     })
   })
 
-  describe('getCustomers', () => {
+  describe('findCustomers', () => {
 
     it('should get all customers', async () => {
 
