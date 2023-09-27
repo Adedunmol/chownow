@@ -1,14 +1,17 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UsePipes, ValidationPipe, UseInterceptors, ClassSerializerInterceptor } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UsePipes, ValidationPipe, UseInterceptors, ClassSerializerInterceptor, UseGuards, HttpCode, Request } from '@nestjs/common';
 import { RestaurantsService } from '../services/restaurants.service';
 import { CreateRestaurantDto } from '../dto/create-restaurant.dto';
 import { UpdateRestaurantDto } from '../dto/update-restaurant.dto';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBody, ApiOkResponse, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger';
 import { ApiCreatedResponse, ApiBadRequestResponse, ApiConflictResponse } from '@nestjs/swagger';
+import { RestaurantAuthGuard } from '../../auth/local-auth.guard';
+import { AuthService } from '../../auth/auth.service';
+import { LoginRestaurantDto } from '../dto/login-restaurant.dto';
 
 @ApiTags('Restaurants')
 @Controller('restaurants')
 export class RestaurantsController {
-  constructor(private readonly restaurantsService: RestaurantsService) {}
+  constructor(private readonly restaurantsService: RestaurantsService, private readonly authService: AuthService) {}
 
   @Post('register')
   @UsePipes(ValidationPipe)
@@ -18,6 +21,17 @@ export class RestaurantsController {
   @ApiConflictResponse({ description: 'Conflict' })
   registerRestaurant(@Body() createRestaurantDto: CreateRestaurantDto) {
     return this.restaurantsService.create(createRestaurantDto);
+  }
+
+  @UseGuards(RestaurantAuthGuard)
+  @ApiBody({ type: LoginRestaurantDto })
+  @Post('login')
+  @UsePipes(ValidationPipe)
+  @HttpCode(200)
+  @ApiOkResponse({ description: 'Success' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+  loginCustomer(@Request() req) {
+    return this.authService.loginRestaurant(req.user)
   }
 
   @Get()

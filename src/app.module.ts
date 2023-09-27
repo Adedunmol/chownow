@@ -22,7 +22,7 @@ import { RestaurantsModule } from './restaurants/restaurants.module';
       synchronize: true
     }),
     inject: [ConfigService]
-  }), CustomersModule, RestaurantsModule,],
+  }), CustomersModule, RestaurantsModule], // RestaurantsModule
   controllers: [AppController],
   providers: [AppService],
 })

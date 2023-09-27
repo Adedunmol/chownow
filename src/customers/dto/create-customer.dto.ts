@@ -5,12 +5,12 @@ export class CreateCustomerDto {
 
     @IsString()
     @IsNotEmpty()
-    @ApiProperty({ default: 'Montag' })
+    @ApiProperty({ default: 'test' })
     username: string;
     
     @IsString()
     @IsNotEmpty()
-    @ApiProperty({ default: 'Montag' })
+    @ApiProperty({ default: 'test' })
     first_name: string;
 
     @IsString()

@@ -2,11 +2,12 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, UsePipes, Request, V
 import { CustomersService } from '../services/customers.service';
 import { UpdateCustomerDto } from '../dto/update-customer.dto';
 import { CreateCustomerDto } from '../dto/create-customer.dto';
-import { ApiTags, ApiConflictResponse, ApiCreatedResponse, ApiBadRequestResponse, ApiOkResponse, ApiUnauthorizedResponse } from '@nestjs/swagger';
+import { ApiTags, ApiConflictResponse, ApiCreatedResponse, ApiBadRequestResponse, ApiOkResponse, ApiUnauthorizedResponse, ApiBody } from '@nestjs/swagger';
 import { LoginCustomerDto } from '../dto/login-customer.dto';
-import { LocalAuthGuard } from '../auth/local-auth.guard';
-import { AuthService } from '../auth/auth.service';
-import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { CustomerAuthGuard } from '../../auth/local-auth.guard';
+import { AuthService } from '../../auth/auth.service';
+import { JwtAuthGuard } from '../../auth/jwt-auth.guard';
+import { CustomerStrategy } from 'src/auth/customer.strategy';
 
 @Controller('customers')
 @ApiTags('customers')
@@ -23,14 +24,15 @@ export class CustomersController {
     return this.customersService.create(createCustomerDto);
   }
 
-  @UseGuards(LocalAuthGuard)
+  @UseGuards(CustomerAuthGuard)
   @Post('login')
+  @ApiBody({ type: LoginCustomerDto })
   @UsePipes(ValidationPipe)
   @HttpCode(200)
   @ApiOkResponse({ description: 'Success' })
   @ApiUnauthorizedResponse({ description: 'Unauthorized' })
   loginCustomer(@Request() req) {
-    return this.authService.login(req.user)
+    return this.authService.loginCustomer(req.user)
   }
 
   @UseGuards(JwtAuthGuard)
