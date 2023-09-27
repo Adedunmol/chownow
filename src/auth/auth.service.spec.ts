@@ -4,6 +4,7 @@ import { AuthService } from './auth.service';
 import { JwtService } from '@nestjs/jwt';
 import * as passwordModule from '../utils/bcrypt';
 import { RestaurantsService } from '../restaurants/services/restaurants.service';
+import { DriversService } from '../drivers/services/drivers.service';
 
 describe('AuthService', () => {
   let service: AuthService;
@@ -17,15 +18,28 @@ describe('AuthService', () => {
     date_joined: new Date()
   }
 
+  const driver = {
+    id: Date.now(),
+    username: 'test',
+    first_name: 'test',
+    password: 'password',
+    last_name: 'user',
+    date_joined: new Date()
+  }
+
   const restaurant = {
     id: Date.now(),
-    name: 'test',
+    restaurant_name: 'test',
     password: 'password',
     date_joined: new Date()
   }
 
   const mockCustomersService = {
     findByUsername: jest.fn((dto) => Promise.resolve(customer))
+  }
+
+  const mockDriversService = {
+    findByUsername: jest.fn((dto) => Promise.resolve(driver))
   }
 
   const mockJwtService = {
@@ -38,7 +52,7 @@ describe('AuthService', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [AuthService, CustomersService, JwtService, RestaurantsService],
+      providers: [AuthService, CustomersService, JwtService, RestaurantsService, DriversService],
     })
     .overrideProvider(CustomersService)
     .useValue(mockCustomersService)
@@ -46,6 +60,8 @@ describe('AuthService', () => {
     .useValue(mockJwtService)
     .overrideProvider(RestaurantsService)
     .useValue(mockRestaurantsService)
+    .overrideProvider(DriversService)
+    .useValue(mockDriversService)
     .compile();
 
     service = module.get<AuthService>(AuthService);
@@ -72,11 +88,27 @@ describe('AuthService', () => {
     })
   })
 
-  describe('login', () => {
+  describe('loginCustomer', () => {
 
     it('should return access token', async () => {
 
       expect(await service.loginCustomer(customer)).toEqual({ access_token: expect.any(String) })
+    })
+  })
+
+  describe('loginRestaurant', () => {
+
+    it('should return access token', async () => {
+
+      expect(await service.loginRestaurant(restaurant)).toEqual({ access_token: expect.any(String) })
+    })
+  })
+
+  describe('loginDriver', () => {
+
+    it('should return access token', async () => {
+
+      expect(await service.loginDriver(driver)).toEqual({ access_token: expect.any(String) })
     })
   })
 });

@@ -23,7 +23,7 @@ import { DriversModule } from './drivers/drivers.module';
       synchronize: true
     }),
     inject: [ConfigService]
-  }), CustomersModule, RestaurantsModule, DriversModule], // RestaurantsModule
+  }), CustomersModule, RestaurantsModule, DriversModule],
   controllers: [AppController],
   providers: [AppService],
 })

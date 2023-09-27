@@ -8,9 +8,11 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { CustomerStrategy } from './customer.strategy';
 import { RestaurantStrategy } from './restaurant.strategy';
 import { RestaurantsModule } from '../restaurants/restaurants.module';
+import { DriversModule } from '../drivers/drivers.module';
+import { DriverStrategy } from './driver.strategy';
 
 @Module({
-  imports: [forwardRef(() => CustomersModule), forwardRef(() => RestaurantsModule), PassportModule, JwtModule.registerAsync({
+  imports: [forwardRef(() => CustomersModule), forwardRef(() => RestaurantsModule), forwardRef(() => DriversModule), PassportModule, JwtModule.registerAsync({
     imports: [ConfigModule],
     useFactory: async (configService: ConfigService) => ({
       secret: configService.get('JWT_SECRET'),
@@ -18,7 +20,7 @@ import { RestaurantsModule } from '../restaurants/restaurants.module';
     }),
     inject: [ConfigService]
   })],
-  providers: [AuthService, JwtStrategy, CustomerStrategy, RestaurantStrategy],
+  providers: [AuthService, JwtStrategy, CustomerStrategy, RestaurantStrategy, DriverStrategy],
   exports: [AuthService, JwtStrategy],
 })
 export class AuthModule {}

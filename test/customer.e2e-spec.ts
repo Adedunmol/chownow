@@ -9,6 +9,8 @@ import { ConfigModule } from '@nestjs/config';
 import { AuthService } from '../src/auth/auth.service';
 import { JwtService } from '@nestjs/jwt';
 import { RestaurantsModule } from '../src/restaurants/restaurants.module';
+import { Driver } from '../src/drivers/entities/driver.entity';
+import { DriversModule } from '../src/drivers/drivers.module';
 
 describe('CustomerController (e2e)', () => {
   let app: INestApplication;
@@ -22,6 +24,14 @@ describe('CustomerController (e2e)', () => {
   }
 
   const mockRestaurantsRepository = {
+    create: jest.fn(dto => dto),
+    findOne: jest.fn(query => null),
+    save: jest.fn(dto => {
+        return Promise.resolve({ id: Date.now(), ...dto, date_joined: new Date() })
+    })
+  }
+
+  const mockDriversRepository = {
     create: jest.fn(dto => dto),
     findOne: jest.fn(query => null),
     save: jest.fn(dto => {
@@ -45,9 +55,16 @@ describe('CustomerController (e2e)', () => {
 
   beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [ConfigModule.forRoot({ isGlobal: true }), CustomersModule, RestaurantsModule, AuthModule],
+      imports: [ConfigModule.forRoot({ isGlobal: true }), CustomersModule, RestaurantsModule, DriversModule, AuthModule],
       providers: [AuthService, JwtService]
-    }).overrideProvider(getRepositoryToken(Customer)).useValue(mockCustomersRepository).overrideProvider(getRepositoryToken(Restaurant)).useValue(mockRestaurantsRepository).compile();
+    })
+    .overrideProvider(getRepositoryToken(Customer))
+    .useValue(mockCustomersRepository)
+    .overrideProvider(getRepositoryToken(Restaurant))
+    .useValue(mockRestaurantsRepository)
+    .overrideProvider(getRepositoryToken(Driver))
+    .useValue(mockDriversRepository)
+    .compile();
 
     app = moduleFixture.createNestApplication();
     await app.init();

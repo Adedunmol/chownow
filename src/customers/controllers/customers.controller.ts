@@ -7,10 +7,9 @@ import { LoginCustomerDto } from '../dto/login-customer.dto';
 import { CustomerAuthGuard } from '../../auth/local-auth.guard';
 import { AuthService } from '../../auth/auth.service';
 import { JwtAuthGuard } from '../../auth/jwt-auth.guard';
-import { CustomerStrategy } from 'src/auth/customer.strategy';
 
 @Controller('customers')
-@ApiTags('customers')
+@ApiTags('Customers')
 export class CustomersController {
   constructor(private readonly customersService: CustomersService, private readonly authService: AuthService) {}
 

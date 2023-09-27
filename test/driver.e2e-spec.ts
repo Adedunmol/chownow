@@ -1,21 +1,21 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
+import { CustomersModule } from '../src/customers/customers.module';
 import { Customer, Restaurant } from '../src/typeorm';
-import { getRepositoryToken } from '@nestjs/typeorm';
+import { getRepositoryToken, TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from '../src/auth/auth.module';
 import { ConfigModule } from '@nestjs/config';
 import { AuthService } from '../src/auth/auth.service';
 import { JwtService } from '@nestjs/jwt';
 import { RestaurantsModule } from '../src/restaurants/restaurants.module';
-import { CustomersModule } from '../src/customers/customers.module';
 import { DriversModule } from '../src/drivers/drivers.module';
 import { Driver } from '../src/drivers/entities/driver.entity';
 
-describe('RestaurantController (e2e)', () => {
+describe('DriverController (e2e)', () => {
   let app: INestApplication;
 
-  const mockRestaurantsRepository = {
+  const mockCustomersRepository = {
     create: jest.fn(dto => dto),
     findOne: jest.fn(query => null),
     save: jest.fn(dto => {
@@ -23,7 +23,7 @@ describe('RestaurantController (e2e)', () => {
     })
   }
 
-  const mockCustomersRepository = {
+  const mockRestaurantsRepository = {
     create: jest.fn(dto => dto),
     findOne: jest.fn(query => null),
     save: jest.fn(dto => {
@@ -39,47 +39,49 @@ describe('RestaurantController (e2e)', () => {
     })
   }
 
-  const restaurant = {
+  const driver = {
     id: 1,
-    restaurant_name: 'test',
+    username: 'test',
+    first_name: 'test',
     password: 'password',
+    last_name: 'user',
     date_joined: new Date()
   }
 
   const mockAuthService = {
-    validateRestaurant: jest.fn((restaurant_name, password) => restaurant),
+    validateCustomer: jest.fn((username, password) => driver),
     login: jest.fn()
   }
 
   beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [ConfigModule.forRoot({ isGlobal: true }), RestaurantsModule, AuthModule, DriversModule, CustomersModule],
+      imports: [ConfigModule.forRoot({ isGlobal: true }), CustomersModule, RestaurantsModule, DriversModule, AuthModule],
       providers: [AuthService, JwtService]
     })
+    .overrideProvider(getRepositoryToken(Driver))
+    .useValue(mockDriversRepository)
     .overrideProvider(getRepositoryToken(Restaurant))
     .useValue(mockRestaurantsRepository)
     .overrideProvider(getRepositoryToken(Customer))
     .useValue(mockCustomersRepository)
-    .overrideProvider(getRepositoryToken(Driver))
-    .useValue(mockDriversRepository)
     .compile();
 
     app = moduleFixture.createNestApplication();
     await app.init();
   });
 
-  describe('/restaurants/register', () => {
+  describe('/drivers/register', () => {
 
     it('should return 201 created', () => {
-        const data = { restaurant_name: 'test', password: 'Password@123' }
+        const data = { username: 'test', first_name: 'test', last_name: 'user', password: 'Password@123' }
         return request(app.getHttpServer())
-          .post('/restaurants/register').send(data)
+          .post('/drivers/register').send(data)
           .expect(201)
     })
 
     it('should return 400 bad request', () => {
         return request(app.getHttpServer())
-          .post('/restaurants/register').send({ })
+          .post('/drivers/register').send({  })
           .expect(400)
           .then(response => {
             expect(response.body['error']).toEqual('Bad Request');
@@ -87,10 +89,10 @@ describe('RestaurantController (e2e)', () => {
       })
 
     it('should return 409 conflict', () => {
-        mockRestaurantsRepository.findOne.mockImplementation(query => true)
-        const data = { restaurant_name: 'test', password: 'Password@123' }
+        mockDriversRepository.findOne.mockImplementation(query => true)
+        const data = { username: 'test', first_name: 'test', last_name: 'user', password: 'Password@123' }
         return request(app.getHttpServer())
-          .post('/restaurants/register').send(data)
+          .post('/drivers/register').send(data)
           .expect(409)
           .then(response => {
             expect(response.body['error']).toEqual('Conflict');
@@ -98,26 +100,26 @@ describe('RestaurantController (e2e)', () => {
     })
   })
 
-  describe('/restaurants/login', () => {
+  describe('/drivers/login', () => {
 
     it('should return 200 success', () => {
-      jest.spyOn(AuthService.prototype, 'validateRestaurant').mockImplementation(async (username, password) => Promise.resolve(restaurant))
-      const data = { restaurant_name: 'test', password: 'Password@123' }
+      jest.spyOn(AuthService.prototype, 'validateDriver').mockImplementation(async (username, password) => Promise.resolve(driver))
+      const data = { username: 'test', password: 'Password@123' }
       return request(app.getHttpServer())
-          .post('/restaurants/login').send(data)
+          .post('/drivers/login').send(data)
           .expect(200).then(response => {
             expect(response.body).toEqual({ access_token: expect.any(String) })
           })
     })
 
     it('should return 401 unauthorized', () => {
-      jest.spyOn(AuthService.prototype, 'validateRestaurant').mockImplementation(async (username, password) => Promise.resolve(null))
-      const data = { restaurant_name: 'test', password: 'Password@123' }
+      jest.spyOn(AuthService.prototype, 'validateDriver').mockImplementation(async (username, password) => Promise.resolve(null))
+      const data = { username: 'test', password: 'Password@123' }
       return request(app.getHttpServer())
-          .post('/restaurants/login').send(data)
+          .post('/drivers/login').send(data)
           .expect(401).then(response => {
             expect(response.body).toEqual({ message: 'Unauthorized', statusCode: 401 })
           })
     })
-  })
+  })  
 });
