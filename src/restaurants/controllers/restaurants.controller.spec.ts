@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { RestaurantsController } from './restaurants.controller';
 import { RestaurantsService } from '../services/restaurants.service';
+import { AuthService } from '../../auth/auth.service';
 
 describe('RestaurantsController', () => {
   let controller: RestaurantsController;
@@ -12,11 +13,20 @@ describe('RestaurantsController', () => {
     })
   }
 
+  const mockAuthService = {
+    loginCustomer: jest.fn(dto => ({ access_token: 'some random string' }))
+  }
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [RestaurantsController],
-      providers: [RestaurantsService],
-    }).overrideProvider(RestaurantsService).useValue(mockRestaurantsService).compile();
+      providers: [RestaurantsService, AuthService],
+    })
+    .overrideProvider(RestaurantsService)
+    .useValue(mockRestaurantsService)
+    .overrideProvider(AuthService)
+    .useValue(mockAuthService)
+    .compile();
 
     controller = module.get<RestaurantsController>(RestaurantsController);
   });

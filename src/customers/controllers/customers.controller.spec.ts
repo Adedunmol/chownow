@@ -23,7 +23,7 @@ describe('CustomersController', () => {
   }
 
   const mockAuthService = {
-    login: jest.fn(dto => ({ access_token: 'some random string' }))
+    loginCustomer: jest.fn(dto => ({ access_token: 'some random string' }))
   }
 
   beforeEach(async () => {
@@ -66,7 +66,7 @@ describe('CustomersController', () => {
        access_token: expect.any(String) 
       })
 
-      expect(mockAuthService.login).toHaveBeenCalled()
+      expect(mockAuthService.loginCustomer).toHaveBeenCalled()
     })
   })
 });

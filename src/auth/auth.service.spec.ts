@@ -3,6 +3,7 @@ import { CustomersService } from '../customers/services/customers.service';
 import { AuthService } from './auth.service';
 import { JwtService } from '@nestjs/jwt';
 import * as passwordModule from '../utils/bcrypt';
+import { RestaurantsService } from '../restaurants/services/restaurants.service';
 
 describe('AuthService', () => {
   let service: AuthService;
@@ -16,6 +17,13 @@ describe('AuthService', () => {
     date_joined: new Date()
   }
 
+  const restaurant = {
+    id: Date.now(),
+    name: 'test',
+    password: 'password',
+    date_joined: new Date()
+  }
+
   const mockCustomersService = {
     findByUsername: jest.fn((dto) => Promise.resolve(customer))
   }
@@ -24,10 +32,21 @@ describe('AuthService', () => {
     sign: jest.fn(payload => 'some random string')
   }
 
+  const mockRestaurantsService = {
+    findByName: jest.fn((dto) => Promise.resolve(restaurant))
+  }
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [AuthService, CustomersService, JwtService],
-    }).overrideProvider(CustomersService).useValue(mockCustomersService).overrideProvider(JwtService).useValue(mockJwtService).compile();
+      providers: [AuthService, CustomersService, JwtService, RestaurantsService],
+    })
+    .overrideProvider(CustomersService)
+    .useValue(mockCustomersService)
+    .overrideProvider(JwtService)
+    .useValue(mockJwtService)
+    .overrideProvider(RestaurantsService)
+    .useValue(mockRestaurantsService)
+    .compile();
 
     service = module.get<AuthService>(AuthService);
   });
