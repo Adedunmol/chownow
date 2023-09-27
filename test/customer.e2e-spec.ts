@@ -2,17 +2,26 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
 import { CustomersModule } from '../src/customers/customers.module';
-import { Customer } from '../src/typeorm';
-import { getRepositoryToken } from '@nestjs/typeorm';
+import { Customer, Restaurant } from '../src/typeorm';
+import { getRepositoryToken, TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from '../src/auth/auth.module';
 import { ConfigModule } from '@nestjs/config';
 import { AuthService } from '../src/auth/auth.service';
 import { JwtService } from '@nestjs/jwt';
+import { RestaurantsModule } from '../src/restaurants/restaurants.module';
 
 describe('CustomerController (e2e)', () => {
   let app: INestApplication;
 
   const mockCustomersRepository = {
+    create: jest.fn(dto => dto),
+    findOne: jest.fn(query => null),
+    save: jest.fn(dto => {
+        return Promise.resolve({ id: Date.now(), ...dto, date_joined: new Date() })
+    })
+  }
+
+  const mockRestaurantsRepository = {
     create: jest.fn(dto => dto),
     findOne: jest.fn(query => null),
     save: jest.fn(dto => {
@@ -36,9 +45,9 @@ describe('CustomerController (e2e)', () => {
 
   beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [ConfigModule.forRoot({ isGlobal: true }), CustomersModule, AuthModule],
+      imports: [ConfigModule.forRoot({ isGlobal: true }), CustomersModule, RestaurantsModule, AuthModule],
       providers: [AuthService, JwtService]
-    }).overrideProvider(getRepositoryToken(Customer)).useValue(mockCustomersRepository).compile();
+    }).overrideProvider(getRepositoryToken(Customer)).useValue(mockCustomersRepository).overrideProvider(getRepositoryToken(Restaurant)).useValue(mockRestaurantsRepository).compile();
 
     app = moduleFixture.createNestApplication();
     await app.init();

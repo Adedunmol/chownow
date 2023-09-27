@@ -7,7 +7,7 @@ import { JwtStrategy } from './jwt.strategy';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { CustomerStrategy } from './customer.strategy';
 import { RestaurantStrategy } from './restaurant.strategy';
-import { RestaurantsModule } from 'src/restaurants/restaurants.module';
+import { RestaurantsModule } from '../restaurants/restaurants.module';
 
 @Module({
   imports: [forwardRef(() => CustomersModule), forwardRef(() => RestaurantsModule), PassportModule, JwtModule.registerAsync({
