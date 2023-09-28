@@ -18,7 +18,7 @@ describe('CustomersController', () => {
   const mockCustomersService = {
     create: jest.fn((dto) => {
       const { password, ...others } = dto;
-      return { id: Date.now(), ...others, date_joined: new Date() }
+      return { id: Date.now(), ...others, date_joined: new Date(), role: 'User' }
     })
   }
 
@@ -48,6 +48,7 @@ describe('CustomersController', () => {
       expect(controller.registerCustomer(dto)).toEqual({
         id: expect.any(Number),
         ...others,
+        role: 'User',
         date_joined: expect.any(Date)
       })
 

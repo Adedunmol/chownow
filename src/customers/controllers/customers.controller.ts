@@ -4,9 +4,12 @@ import { UpdateCustomerDto } from '../dto/update-customer.dto';
 import { CreateCustomerDto } from '../dto/create-customer.dto';
 import { ApiTags, ApiConflictResponse, ApiCreatedResponse, ApiBadRequestResponse, ApiOkResponse, ApiUnauthorizedResponse, ApiBody } from '@nestjs/swagger';
 import { LoginCustomerDto } from '../dto/login-customer.dto';
-import { CustomerAuthGuard } from '../../auth/local-auth.guard';
+import { CustomerAuthGuard } from '../../auth/guards/local-auth.guard';
 import { AuthService } from '../../auth/auth.service';
-import { JwtAuthGuard } from '../../auth/jwt-auth.guard';
+import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
+import { Roles } from '../../auth/decorators/roles.decorator';
+import { Role } from '../../utils/role.enum';
+import { RolesGuard } from '../../auth/guards/roles.guard';
 
 @Controller('customers')
 @ApiTags('Customers')
@@ -34,7 +37,8 @@ export class CustomersController {
     return this.authService.loginCustomer(req.user)
   }
 
-  @UseGuards(JwtAuthGuard)
+  @Roles(Role.USER)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Get()
   @UseInterceptors(ClassSerializerInterceptor)
   getCustomers() {

@@ -11,6 +11,7 @@ import { RestaurantsModule } from '../src/restaurants/restaurants.module';
 import { CustomersModule } from '../src/customers/customers.module';
 import { DriversModule } from '../src/drivers/drivers.module';
 import { Driver } from '../src/drivers/entities/driver.entity';
+import { Role } from '../src/utils/role.enum';
 
 describe('RestaurantController (e2e)', () => {
   let app: INestApplication;
@@ -43,6 +44,7 @@ describe('RestaurantController (e2e)', () => {
     id: 1,
     restaurant_name: 'test',
     password: 'password',
+    role: Role.RESTAURANT,
     date_joined: new Date()
   }
 

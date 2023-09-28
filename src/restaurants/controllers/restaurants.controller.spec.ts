@@ -6,15 +6,20 @@ import { AuthService } from '../../auth/auth.service';
 describe('RestaurantsController', () => {
   let controller: RestaurantsController;
 
+  const restaurant = {
+    restaurant_name: 'test',
+    password: 'password'
+  }
+
   const mockRestaurantsService = {
     create: jest.fn((dto) => { 
       const { password, ...others } = dto;
-      return { id: Date.now(), ...others, date_joined: new Date() }
+      return { id: Date.now(), ...others, date_joined: new Date(), role: 'Restaurant' }
     })
   }
 
   const mockAuthService = {
-    loginCustomer: jest.fn(dto => ({ access_token: 'some random string' }))
+    loginRestaurant: jest.fn(dto => ({ access_token: 'some random string' }))
   }
 
   beforeEach(async () => {
@@ -43,10 +48,26 @@ describe('RestaurantsController', () => {
       expect(controller.registerRestaurant(dto)).toEqual({
         id: expect.any(Number),
         restaurant_name: dto.restaurant_name,
+        role: 'Restaurant',
         date_joined: expect.any(Date)
       })
 
       expect(mockRestaurantsService.create).toHaveBeenCalled();
+    })
+  })
+
+  describe('loginRestaurant', () => {
+    
+    it('should login restaurant', () => {
+      const req = {
+        user: restaurant
+      }
+
+      expect(controller.loginRestaurant(req)).toEqual({
+       access_token: expect.any(String) 
+      })
+
+      expect(mockAuthService.loginRestaurant).toHaveBeenCalled()
     })
   })
 });

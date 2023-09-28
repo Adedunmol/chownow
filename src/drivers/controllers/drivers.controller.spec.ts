@@ -18,7 +18,7 @@ describe('DriversController', () => {
   const mockDriversService = {
     create: jest.fn((dto) => {
       const { password, ...others } = dto;
-      return { id: Date.now(), ...others, date_joined: new Date() }
+      return { id: Date.now(), ...others, date_joined: new Date(), role: 'Driver' }
     })
   }
 
@@ -53,6 +53,7 @@ describe('DriversController', () => {
       expect(controller.registerDriver(dto)).toEqual({
         id: expect.any(Number),
         ...others,
+        role: 'Driver',
         date_joined: expect.any(Date)
       })
 

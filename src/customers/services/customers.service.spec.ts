@@ -13,7 +13,7 @@ describe('CustomersService', () => {
     create: jest.fn(dto => dto),
     save: jest.fn(dto => { 
       const { password, ...others } = dto
-      return Promise.resolve({ id: Date.now(), ...others, date_joined: new Date() }) 
+      return Promise.resolve({ id: Date.now(), ...others, date_joined: new Date(), role: 'User' }) 
     }),
     findOne: jest.fn(query => null),
     find: jest.fn(() => customers),
@@ -44,6 +44,7 @@ describe('CustomersService', () => {
       expect(await service.create(dto)).toEqual({
         id: expect.any(Number),
         ...others,
+        role: 'User',
         date_joined: expect.any(Date)
       })
 

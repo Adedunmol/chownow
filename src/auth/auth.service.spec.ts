@@ -5,6 +5,7 @@ import { JwtService } from '@nestjs/jwt';
 import * as passwordModule from '../utils/bcrypt';
 import { RestaurantsService } from '../restaurants/services/restaurants.service';
 import { DriversService } from '../drivers/services/drivers.service';
+import { Role } from '../utils/role.enum';
 
 describe('AuthService', () => {
   let service: AuthService;
@@ -15,6 +16,7 @@ describe('AuthService', () => {
     first_name: 'test',
     password: 'password',
     last_name: 'user',
+    role: Role.USER,
     date_joined: new Date()
   }
 
@@ -24,6 +26,7 @@ describe('AuthService', () => {
     first_name: 'test',
     password: 'password',
     last_name: 'user',
+    role: Role.DRIVER,
     date_joined: new Date()
   }
 
@@ -31,6 +34,7 @@ describe('AuthService', () => {
     id: Date.now(),
     restaurant_name: 'test',
     password: 'password',
+    role: Role.RESTAURANT,
     date_joined: new Date()
   }
 

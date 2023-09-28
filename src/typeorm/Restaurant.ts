@@ -1,3 +1,4 @@
+import { Role } from '../utils/role.enum';
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany, ManyToOne, CreateDateColumn } from 'typeorm';
 import { Address } from './Address';
 import { FoodOrder } from './Food_Order';
@@ -11,6 +12,13 @@ export class Restaurant {
 
     @Column({ unique: true })
     restaurant_name: string;
+
+    @Column({
+        type: 'enum',
+        enum: Role,
+        default: Role.RESTAURANT
+    })
+    role: Role;
 
     @Column()
     password: string;

@@ -11,6 +11,7 @@ import { JwtService } from '@nestjs/jwt';
 import { RestaurantsModule } from '../src/restaurants/restaurants.module';
 import { Driver } from '../src/drivers/entities/driver.entity';
 import { DriversModule } from '../src/drivers/drivers.module';
+import { Role } from '../src/utils/role.enum';
 
 describe('CustomerController (e2e)', () => {
   let app: INestApplication;
@@ -19,7 +20,7 @@ describe('CustomerController (e2e)', () => {
     create: jest.fn(dto => dto),
     findOne: jest.fn(query => null),
     save: jest.fn(dto => {
-        return Promise.resolve({ id: Date.now(), ...dto, date_joined: new Date() })
+        return Promise.resolve({ id: Date.now(), ...dto, date_joined: new Date(), role: 'User' })
     })
   }
 
@@ -27,7 +28,7 @@ describe('CustomerController (e2e)', () => {
     create: jest.fn(dto => dto),
     findOne: jest.fn(query => null),
     save: jest.fn(dto => {
-        return Promise.resolve({ id: Date.now(), ...dto, date_joined: new Date() })
+        return Promise.resolve({ id: Date.now(), ...dto, date_joined: new Date(), role: 'Restaurant' })
     })
   }
 
@@ -35,7 +36,7 @@ describe('CustomerController (e2e)', () => {
     create: jest.fn(dto => dto),
     findOne: jest.fn(query => null),
     save: jest.fn(dto => {
-        return Promise.resolve({ id: Date.now(), ...dto, date_joined: new Date() })
+        return Promise.resolve({ id: Date.now(), ...dto, date_joined: new Date(), role: 'Driver' })
     })
   }
 
@@ -45,6 +46,7 @@ describe('CustomerController (e2e)', () => {
     first_name: 'test',
     password: 'password',
     last_name: 'user',
+    role: Role.USER,
     date_joined: new Date()
   }
 

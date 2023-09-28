@@ -1,3 +1,4 @@
+import { Role } from '../utils/role.enum';
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany, CreateDateColumn } from 'typeorm';
 import { FoodOrder } from './Food_Order';
 
@@ -15,6 +16,13 @@ export class DeliveryDriver {
     
     @Column()
     username: string;
+
+    @Column({
+        type: 'enum',
+        enum: Role,
+        default: Role.DRIVER
+    })
+    role: Role;
 
     @Column()
     password: string;

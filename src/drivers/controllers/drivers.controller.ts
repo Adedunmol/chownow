@@ -3,7 +3,7 @@ import { DriversService } from '../services/drivers.service';
 import { CreateDriverDto } from '../dto/create-driver.dto';
 import { UpdateDriverDto } from '../dto/update-driver.dto';
 import { ApiBadRequestResponse, ApiBody, ApiConflictResponse, ApiCreatedResponse, ApiOkResponse, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger';
-import { DriverAuthGuard } from '../../auth/local-auth.guard';
+import { DriverAuthGuard } from '../../auth/guards/local-auth.guard';
 import { LoginDriverDto } from '../dto/login-driver.dto';
 import { AuthService } from '../../auth/auth.service';
 

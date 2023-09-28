@@ -13,7 +13,7 @@ describe('DriversService', () => {
     create: jest.fn(dto => dto),
     save: jest.fn(dto => { 
       const { password, ...others } = dto
-      return Promise.resolve({ id: Date.now(), ...others, date_joined: new Date() }) 
+      return Promise.resolve({ id: Date.now(), ...others, date_joined: new Date(), role: 'Driver' }) 
     }),
     findOne: jest.fn(query => null),
     find: jest.fn(() => drivers),
@@ -33,7 +33,7 @@ describe('DriversService', () => {
 
   describe('create', () => {
 
-    it('should create a new customer record', async () => {
+    it('should create a new driver record', async () => {
 
       const dto = { username: 'test', first_name: 'test', last_name: 'user', password: 'Password@123' }
       const { password, ...others } = dto
@@ -41,6 +41,7 @@ describe('DriversService', () => {
       expect(await service.create(dto)).toEqual({
         id: expect.any(Number),
         ...others,
+        role: 'Driver',
         date_joined: expect.any(Date)
       })
 

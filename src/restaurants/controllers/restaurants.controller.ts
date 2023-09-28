@@ -4,7 +4,7 @@ import { CreateRestaurantDto } from '../dto/create-restaurant.dto';
 import { UpdateRestaurantDto } from '../dto/update-restaurant.dto';
 import { ApiBody, ApiOkResponse, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger';
 import { ApiCreatedResponse, ApiBadRequestResponse, ApiConflictResponse } from '@nestjs/swagger';
-import { RestaurantAuthGuard } from '../../auth/local-auth.guard';
+import { RestaurantAuthGuard } from '../../auth/guards/local-auth.guard';
 import { AuthService } from '../../auth/auth.service';
 import { LoginRestaurantDto } from '../dto/login-restaurant.dto';
 
@@ -30,7 +30,7 @@ export class RestaurantsController {
   @HttpCode(200)
   @ApiOkResponse({ description: 'Success' })
   @ApiUnauthorizedResponse({ description: 'Unauthorized' })
-  loginCustomer(@Request() req) {
+  loginRestaurant(@Request() req) {
     return this.authService.loginRestaurant(req.user)
   }
 

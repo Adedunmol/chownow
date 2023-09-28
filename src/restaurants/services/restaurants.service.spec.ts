@@ -7,13 +7,13 @@ import { ConflictException } from '@nestjs/common';
 describe('RestaurantsService', () => {
   let service: RestaurantsService;
 
-  const restaurants = [{ id: Date.now(), restaurant_name: 'test1', date_joined: new Date() }]
+  const restaurants = [{ id: Date.now(), restaurant_name: 'test1', date_joined: new Date(), role: 'Restaurant' }]
 
   const mockRestaurantsRepository = {
     create: jest.fn((dto) => dto),
     save: jest.fn(dto => { 
       const { password, ...others } = dto
-      return Promise.resolve({ id: Date.now(), ...others, date_joined: new Date() }) 
+      return Promise.resolve({ id: Date.now(), ...others, date_joined: new Date(), role: 'Restaurant' }) 
     }),
     findOne: jest.fn(query => null),
     find: jest.fn(() => restaurants),
@@ -41,6 +41,7 @@ describe('RestaurantsService', () => {
       expect(await service.create(dto)).toEqual({
         id: expect.any(Number),
         ...others,
+        role: 'Restaurant',
         date_joined: expect.any(Date)
       })
 

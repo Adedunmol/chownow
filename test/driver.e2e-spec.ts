@@ -11,6 +11,7 @@ import { JwtService } from '@nestjs/jwt';
 import { RestaurantsModule } from '../src/restaurants/restaurants.module';
 import { DriversModule } from '../src/drivers/drivers.module';
 import { Driver } from '../src/drivers/entities/driver.entity';
+import { Role } from '../src/utils/role.enum';
 
 describe('DriverController (e2e)', () => {
   let app: INestApplication;
@@ -45,6 +46,7 @@ describe('DriverController (e2e)', () => {
     first_name: 'test',
     password: 'password',
     last_name: 'user',
+    role: Role.DRIVER,
     date_joined: new Date()
   }
 
