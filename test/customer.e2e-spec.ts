@@ -12,16 +12,30 @@ import { RestaurantsModule } from '../src/restaurants/restaurants.module';
 import { Driver } from '../src/drivers/entities/driver.entity';
 import { DriversModule } from '../src/drivers/drivers.module';
 import { Role } from '../src/utils/role.enum';
+import { JwtStrategy } from '../src/auth/strategies/jwt.strategy';
 
 describe('CustomerController (e2e)', () => {
   let app: INestApplication;
+
+  const customer = {
+    id: 1,
+    username: 'test',
+    first_name: 'test',
+    password: 'password',
+    last_name: 'user',
+    role: Role.USER,
+    date_joined: new Date()
+  }
+  
+  const customers = [customer];
 
   const mockCustomersRepository = {
     create: jest.fn(dto => dto),
     findOne: jest.fn(query => null),
     save: jest.fn(dto => {
         return Promise.resolve({ id: Date.now(), ...dto, date_joined: new Date(), role: 'User' })
-    })
+    }),
+    find: jest.fn(() => customers)
   }
 
   const mockRestaurantsRepository = {
@@ -40,13 +54,13 @@ describe('CustomerController (e2e)', () => {
     })
   }
 
-  const customer = {
+  const admin = {
     id: 1,
-    username: 'test',
+    username: 'Admin',
     first_name: 'test',
     password: 'password',
     last_name: 'user',
-    role: Role.USER,
+    role: Role.ADMIN,
     date_joined: new Date()
   }
 
@@ -72,7 +86,7 @@ describe('CustomerController (e2e)', () => {
     await app.init();
   });
 
-  describe('/customers/register', () => {
+  describe('(POST) /customers/register', () => {
 
     it('should return 201 created', () => {
         const data = { username: 'test', first_name: 'test', last_name: 'user', password: 'Password@123' }
@@ -102,7 +116,7 @@ describe('CustomerController (e2e)', () => {
     })
   })
 
-  describe('/customers/login', () => {
+  describe('(POST) /customers/login', () => {
 
     it('should return 200 success', () => {
       jest.spyOn(AuthService.prototype, 'validateCustomer').mockImplementation(async (username, password) => Promise.resolve(customer))
@@ -111,7 +125,7 @@ describe('CustomerController (e2e)', () => {
           .post('/customers/login').send(data)
           .expect(200).then(response => {
             expect(response.body).toEqual({ access_token: expect.any(String) })
-          })
+        })
     })
 
     it('should return 401 unauthorized', () => {
@@ -123,5 +137,72 @@ describe('CustomerController (e2e)', () => {
             expect(response.body).toEqual({ message: 'Unauthorized', statusCode: 401 })
           })
     })
-  })  
+  })
+  
+  describe('(GET) /customers/:id', () => {
+
+    it('should return 401 unauthorized', () => {
+
+      return request(app.getHttpServer())
+      .get('/customers/1')
+      .expect(401)
+    })
+
+    it('should return 200 success', async () => {
+
+      jest.spyOn(AuthService.prototype, 'validateCustomer').mockImplementation(async (username, password) => Promise.resolve(customer))
+      const data = { username: 'test', password: 'Password@123' }
+      const { access_token } = await (await request(app.getHttpServer()).post('/customers/login').send(data)).body;
+
+      return request(app.getHttpServer())
+      .get('/customers/1').set('Authorization', `Bearer ${access_token}`)
+      .expect(200)
+    })
+  })
+  
+  describe('(GET) /customers/ (Admin)', () => {
+
+    it('should return 401 unauthorized', () => {
+
+      return request(app.getHttpServer())
+      .get('/customers/')
+      .expect(401)
+    })
+
+    it('should return 200 success', async () => {
+
+      jest.spyOn(AuthService.prototype, 'validateCustomer').mockImplementation(async (username, password) => Promise.resolve(admin))
+      const data = { username: 'test', password: 'Password@123' }
+      const { access_token } = await (await request(app.getHttpServer()).post('/customers/login').send(data)).body;
+
+      jest.spyOn(JwtStrategy.prototype, 'validate').mockImplementation(async (payload) => Promise.resolve(admin))
+      return request(app.getHttpServer())
+      .get('/customers/').set('Authorization', `Bearer ${access_token}`)
+      .expect(200)
+    })
+  })
+
+  describe('(PATCH) /customers/:id (Admin)', () => {
+
+    it('should return 401 unauthorized', () => {
+      const data = { username: 'test', first_name: 'test', last_name: 'user' }
+
+      return request(app.getHttpServer())
+      .patch('/customers/:id').send(data)
+      .expect(401)
+    })
+
+    it('should return 200 success', async () => {
+      jest.spyOn(AuthService.prototype, 'validateCustomer').mockImplementation(async (username, password) => Promise.resolve(admin))
+      const data = { username: 'test', password: 'Password@123' }
+      const { access_token } = await (await request(app.getHttpServer()).post('/customers/login').send(data)).body;
+
+      const dto = { username: 'test', first_name: 'test', last_name: 'user' }
+
+      jest.spyOn(JwtStrategy.prototype, 'validate').mockImplementation(async (payload) => Promise.resolve(admin))
+      return request(app.getHttpServer())
+      .patch('/customers/:id').send(dto).set('Authorization', `Bearer ${access_token}`)
+      .expect(200) //.then(response => console.log(response.body['error'])).catch(err => console.log(err))
+    })
+  })
 });

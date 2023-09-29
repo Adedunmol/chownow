@@ -2,12 +2,12 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { CustomersService } from './customers.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Customer } from '../../typeorm';
-import { ConflictException } from '@nestjs/common';
+import { ConflictException, NotFoundException } from '@nestjs/common';
 
 describe('CustomersService', () => {
   let service: CustomersService;
 
-  const customers = [{ id: 1, username: 'test1', first_name: 'test1', last_name: 'user1', date_joined: Date.now() }]
+  const customers = [{ id: 1, username: 'test1', first_name: 'test1', last_name: 'user1', date_joined: new Date() }]
 
   const mockCustomersRepository = {
     create: jest.fn(dto => dto),
@@ -94,5 +94,50 @@ describe('CustomersService', () => {
 
       expect(await service.findById(1)).toEqual(customers[0])
     })
+  })
+
+  describe('updateAdmin', () => {
+
+    it('should update a customer (admin)', async () => {
+      const dto = { username: 'test', first_name: 'test', last_name: 'user' }
+
+      expect(await service.updateAdmin(123, dto)).toEqual({
+        id: expect.any(Number),
+        ...dto,
+        role: 'User',
+        date_joined: expect.any(Date)
+      })
+    })
+
+    it('should throw NotFoundException', async () => {
+      mockCustomersRepository.findOne.mockImplementation((query) => null)
+      const dto = { username: 'test', first_name: 'test', last_name: 'user' }
+
+      expect(async () => await service.updateAdmin(1, dto)).rejects.toEqual(new NotFoundException('No customer with this id'))
+
+    })
+  })
+
+  describe('update', () => {
+
+    it('should throw NotFoundException', async () => {
+      mockCustomersRepository.findOne.mockImplementation((query) => null)
+      const dto = { username: 'test', first_name: 'test', last_name: 'user' }
+
+      expect(async () => await service.updateAdmin(1, dto)).rejects.toEqual(new NotFoundException('No customer with this id'))
+    })
+
+    it('should update a customer', async () => {
+      mockCustomersRepository.findOne.mockImplementation((query) => customers[0])
+      const dto = { username: 'test', first_name: 'test', last_name: 'user' }
+
+      expect(await service.update(123, dto)).toEqual({
+        id: expect.any(Number),
+        ...dto,
+        role: 'User',
+        date_joined: expect.any(Date)
+      })
+    })
+
   })
 });

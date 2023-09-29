@@ -1,6 +1,6 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UsePipes, Request, ValidationPipe, UseInterceptors, ClassSerializerInterceptor, UseGuards, HttpCode } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UsePipes, Request, ValidationPipe, UseInterceptors, ClassSerializerInterceptor, UseGuards, HttpCode, ParseIntPipe } from '@nestjs/common';
 import { CustomersService } from '../services/customers.service';
-import { UpdateCustomerDto } from '../dto/update-customer.dto';
+import { UpdateCustomerAdminDto, UpdateCustomerDto } from '../dto/update-customer.dto';
 import { CreateCustomerDto } from '../dto/create-customer.dto';
 import { ApiTags, ApiConflictResponse, ApiCreatedResponse, ApiBadRequestResponse, ApiOkResponse, ApiUnauthorizedResponse, ApiBody } from '@nestjs/swagger';
 import { LoginCustomerDto } from '../dto/login-customer.dto';
@@ -37,7 +37,7 @@ export class CustomersController {
     return this.authService.loginCustomer(req.user)
   }
 
-  @Roles(Role.USER)
+  @Roles(Role.ADMIN)
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Get()
   @UseInterceptors(ClassSerializerInterceptor)
@@ -45,14 +45,24 @@ export class CustomersController {
     return this.customersService.findCustomers();
   }
 
+  @UseGuards(JwtAuthGuard)
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.customersService.findOne(+id);
+  findOne(@Param('id', ParseIntPipe) id: number) {
+    return this.customersService.findById(id);
   }
 
+  @Roles(Role.ADMIN)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateCustomerDto: UpdateCustomerDto) {
-    return this.customersService.update(+id, updateCustomerDto);
+  updateAdmin(@Param('id', ParseIntPipe) id: number, @Body() updateCustomerAdminDto: UpdateCustomerAdminDto) {
+    console.log('running')
+    return this.customersService.updateAdmin(id, updateCustomerAdminDto);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Patch()
+  update(@Request() req, @Body() updateCustomerDto: UpdateCustomerDto) {
+    return this.customersService.update(req.user.id, updateCustomerDto);
   }
 
   @Delete(':id')

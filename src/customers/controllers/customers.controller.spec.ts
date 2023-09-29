@@ -10,16 +10,23 @@ describe('CustomersController', () => {
     id: Date.now(),
     username: 'test',
     first_name: 'test',
-    password: 'password',
+    // password: 'password',
     last_name: 'user',
+    role: 'User',
     date_joined: new Date()
   }
+
+  const customers = [customer];
 
   const mockCustomersService = {
     create: jest.fn((dto) => {
       const { password, ...others } = dto;
       return { id: Date.now(), ...others, date_joined: new Date(), role: 'User' }
-    })
+    }),
+    findCustomers: jest.fn(() => customers),
+    findById: jest.fn(id => customer),
+    updateAdmin: jest.fn((id, dto) => customer),
+    update: jest.fn((id, dto) => customer)
   }
 
   const mockAuthService = {
@@ -70,4 +77,42 @@ describe('CustomersController', () => {
       expect(mockAuthService.loginCustomer).toHaveBeenCalled()
     })
   })
+
+  describe('getCustomers', () => {
+
+    it('should return customers', async () => {
+
+      expect(await controller.getCustomers()).toEqual(customers)
+    })
+  })
+
+  describe('findOne', () => {
+
+    it('should return a customer', async () => {
+
+      expect(await controller.findOne(1)).toEqual(customer)
+    })
+  })
+
+  describe('updateAdmin', () => {
+
+    it('should return updated customer (Admin)', async () => {
+      const { role, ...others } = customer;
+
+      expect(await controller.updateAdmin(1, others)).toEqual(customer)
+    })
+  })
+
+  describe('update', () => {
+
+    it('should return updated customer', async () => {
+      const { role, ...others } = customer;
+      const req = {
+        user: customer
+      }
+
+      expect(await controller.update(req, others)).toEqual(customer)
+    })
+  })
+
 });
