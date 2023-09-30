@@ -65,7 +65,6 @@ export class CustomersController {
   @ApiUnauthorizedResponse({ description: 'Unauthorized' })
   @ApiForbiddenResponse({ description: 'Forbidden' })
   updateAdmin(@Param('id', ParseIntPipe) id: number, @Body() updateCustomerAdminDto: UpdateCustomerAdminDto) {
-    console.log('running')
     return this.customersService.updateAdmin(id, updateCustomerAdminDto);
   }
 
@@ -78,8 +77,22 @@ export class CustomersController {
     return this.customersService.update(req.user.id, updateCustomerDto);
   }
 
+  @Roles(Role.ADMIN)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.customersService.remove(+id);
+  @ApiOkResponse({ description: 'Success' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+  @ApiForbiddenResponse({ description: 'Forbidden' })
+  removeAdmin(@Param('id', ParseIntPipe) id: number) {
+    return this.customersService.remove(id);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Delete()
+  @ApiOkResponse({ description: 'Success' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+  @ApiForbiddenResponse({ description: 'Forbidden' })
+  remove(@Request() req) {
+    return this.customersService.remove(req.user.id);
   }
 }

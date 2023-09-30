@@ -45,10 +45,6 @@ export class CustomersService {
     return new SerializedCustomer(customer)
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} customer`;
-  }
-
   async updateAdmin(id: number, updateCustomerAdminDto: UpdateCustomerAdminDto) {
     const customer = await this.findById(id);
 
@@ -74,7 +70,13 @@ export class CustomersService {
     return new SerializedCustomer(await this.customersRepository.save(customer));
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} customer`;
+  async remove(id: number) {
+    const customer = await this.customersRepository.findOne({ where: { id } });
+
+    if (!customer) throw new NotFoundException('No customer with this id');
+
+    const result = await this.customersRepository.remove(customer);
+
+    return result;
   }
 }

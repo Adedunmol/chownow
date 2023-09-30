@@ -7,7 +7,7 @@ import { ConflictException, NotFoundException } from '@nestjs/common';
 describe('CustomersService', () => {
   let service: CustomersService;
 
-  const customers = [{ id: 1, username: 'test1', first_name: 'test1', last_name: 'user1', date_joined: new Date() }]
+  const customers = [{ id: 1, username: 'test1', first_name: 'test1', last_name: 'user1', date_joined: new Date(), role: 'User' }]
 
   const mockCustomersRepository = {
     create: jest.fn(dto => dto),
@@ -17,6 +17,7 @@ describe('CustomersService', () => {
     }),
     findOne: jest.fn(query => null),
     find: jest.fn(() => customers),
+    remove: jest.fn(data => data)
   }
 
   beforeEach(async () => {
@@ -124,20 +125,39 @@ describe('CustomersService', () => {
       mockCustomersRepository.findOne.mockImplementation((query) => null)
       const dto = { username: 'test', first_name: 'test', last_name: 'user' }
 
-      expect(async () => await service.updateAdmin(1, dto)).rejects.toEqual(new NotFoundException('No customer with this id'))
+      expect(async () => await service.update(1, dto)).rejects.toEqual(new NotFoundException('No customer with this id'))
     })
 
     it('should update a customer', async () => {
       mockCustomersRepository.findOne.mockImplementation((query) => customers[0])
       const dto = { username: 'test', first_name: 'test', last_name: 'user' }
 
-      expect(await service.update(123, dto)).toEqual({
+      expect(await service.update(1, dto)).toEqual({
         id: expect.any(Number),
         ...dto,
         role: 'User',
         date_joined: expect.any(Date)
       })
     })
+  })
 
+  describe('remove', () => {
+
+    it('should throw NotFoundException', async () => {
+      mockCustomersRepository.findOne.mockImplementation((query) => null)
+
+      expect(async () => await service.remove(1)).rejects.toEqual(new NotFoundException('No customer with this id'))
+    })
+
+    it('should remove a customer', async () => {
+      mockCustomersRepository.findOne.mockImplementation((query) => customers[0])
+
+      expect(await service.remove(1)).toEqual({
+        id: expect.any(Number),
+        ...customers[0],
+        role: 'User',
+        date_joined: expect.any(Date)
+      })
+    })
   })
 });
