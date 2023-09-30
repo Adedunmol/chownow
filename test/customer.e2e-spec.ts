@@ -201,7 +201,7 @@ describe('CustomerController (e2e)', () => {
       const data = { username: 'test', first_name: 'test', last_name: 'user' }
 
       return request(app.getHttpServer())
-      .patch('/customers/:id').send(data)
+      .patch('/customers/1').send(data)
       .expect(401)
     })
 
@@ -214,7 +214,7 @@ describe('CustomerController (e2e)', () => {
 
       jest.spyOn(JwtStrategy.prototype, 'validate').mockImplementation(async (payload) => Promise.resolve(customer))
       return request(app.getHttpServer())
-      .patch('/customers/:id').send(data).set('Authorization', `Bearer ${access_token}`)
+      .patch('/customers/1').send(data).set('Authorization', `Bearer ${access_token}`)
       .expect(403)
     })
 
@@ -227,8 +227,8 @@ describe('CustomerController (e2e)', () => {
 
       jest.spyOn(JwtStrategy.prototype, 'validate').mockImplementation(async (payload) => Promise.resolve(admin))
       return request(app.getHttpServer())
-      .patch('/customers/:id').set('Authorization', `Bearer ${access_token}`)
-      .expect(200) //.then(response => console.log(response.body['error'])).catch(err => console.log(err))
+      .patch('/customers/1').set('Authorization', `Bearer ${access_token}`)
+      .expect(200)
     })
   })
 
