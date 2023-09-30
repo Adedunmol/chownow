@@ -35,7 +35,8 @@ describe('CustomerController (e2e)', () => {
     save: jest.fn(dto => {
         return Promise.resolve({ id: Date.now(), ...dto, date_joined: new Date(), role: 'User' })
     }),
-    find: jest.fn(() => customers)
+    find: jest.fn(() => customers),
+    remove: jest.fn(data => data)
   }
 
   const mockRestaurantsRepository = {
@@ -148,7 +149,7 @@ describe('CustomerController (e2e)', () => {
       .expect(401)
     })
 
-    it('should return 200 success', async () => {
+    it('should get a customer and return 200 success', async () => {
 
       jest.spyOn(AuthService.prototype, 'validateCustomer').mockImplementation(async (username, password) => Promise.resolve(customer))
       const data = { username: 'test', password: 'Password@123' }
@@ -169,7 +170,7 @@ describe('CustomerController (e2e)', () => {
       .expect(401)
     })
 
-    it('should return 200 success', async () => {
+    it('should get customers and return 200 success', async () => {
 
       jest.spyOn(AuthService.prototype, 'validateCustomer').mockImplementation(async (username, password) => Promise.resolve(admin))
       const data = { username: 'test', password: 'Password@123' }
@@ -218,7 +219,7 @@ describe('CustomerController (e2e)', () => {
       .expect(403)
     })
 
-    it('should return 200 success', async () => {
+    it('should update and return 200 success', async () => {
       jest.spyOn(AuthService.prototype, 'validateCustomer').mockImplementation(async (username, password) => Promise.resolve(admin))
       const data = { username: 'test', password: 'Password@123' }
       const { access_token } = await (await request(app.getHttpServer()).post('/customers/login').send(data)).body;
@@ -242,7 +243,7 @@ describe('CustomerController (e2e)', () => {
       .expect(401)
     })
 
-    it('should return 200 success', async () => {
+    it('should update and return 200 success', async () => {
       jest.spyOn(AuthService.prototype, 'validateCustomer').mockImplementation(async (username, password) => Promise.resolve(admin))
       const data = { username: 'test', password: 'Password@123' }
       const { access_token } = await (await request(app.getHttpServer()).post('/customers/login').send(data)).body;
@@ -253,6 +254,43 @@ describe('CustomerController (e2e)', () => {
       return request(app.getHttpServer())
       .patch('/customers/').send().set('Authorization', `Bearer ${access_token}`)
       .expect(200) //.then(response => console.log(response.body['error'])).catch(err => console.log(err))
+    })
+  })
+  
+  describe('(DELETE) /customers/:id (Admin)', () => {
+
+    it('should return 401 unauthorized', () => {
+      const data = { username: 'test', first_name: 'test', last_name: 'user' }
+
+      return request(app.getHttpServer())
+      .delete('/customers/1')
+      .expect(401)
+    })
+
+    it('should return 403 forbidden', async () => {
+      jest.spyOn(AuthService.prototype, 'validateCustomer').mockImplementation(async (username, password) => Promise.resolve(customer))
+      const data = { username: 'test', password: 'Password@123' }
+      const { access_token } = await (await request(app.getHttpServer()).post('/customers/login').send(data)).body;
+
+      const dto = { username: 'test', first_name: 'test', last_name: 'user' }
+
+      jest.spyOn(JwtStrategy.prototype, 'validate').mockImplementation(async (payload) => Promise.resolve(customer))
+      return request(app.getHttpServer())
+      .delete('/customers/1').set('Authorization', `Bearer ${access_token}`)
+      .expect(403)
+    })
+
+    it('should delete customer and return 200 success', async () => {
+      jest.spyOn(AuthService.prototype, 'validateCustomer').mockImplementation(async (username, password) => Promise.resolve(admin))
+      const data = { username: 'test', password: 'Password@123' }
+      const { access_token } = await (await request(app.getHttpServer()).post('/customers/login').send(data)).body;
+
+      const dto = { username: 'test', first_name: 'test', last_name: 'user' }
+
+      jest.spyOn(JwtStrategy.prototype, 'validate').mockImplementation(async (payload) => Promise.resolve(admin))
+      return request(app.getHttpServer())
+      .delete('/customers/1').set('Authorization', `Bearer ${access_token}`)
+      .expect(200)
     })
   })
 });
