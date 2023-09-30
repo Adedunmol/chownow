@@ -180,6 +180,19 @@ describe('CustomerController (e2e)', () => {
       .get('/customers/').set('Authorization', `Bearer ${access_token}`)
       .expect(200)
     })
+
+    it('should return 403 forbidden', async () => {
+      jest.spyOn(AuthService.prototype, 'validateCustomer').mockImplementation(async (username, password) => Promise.resolve(customer))
+      const data = { username: 'test', password: 'Password@123' }
+      const { access_token } = await (await request(app.getHttpServer()).post('/customers/login').send(data)).body;
+
+      const dto = { username: 'test', first_name: 'test', last_name: 'user' }
+
+      jest.spyOn(JwtStrategy.prototype, 'validate').mockImplementation(async (payload) => Promise.resolve(customer))
+      return request(app.getHttpServer())
+      .get('/customers/').set('Authorization', `Bearer ${access_token}`)
+      .expect(403)
+    })
   })
 
   describe('(PATCH) /customers/:id (Admin)', () => {
@@ -192,6 +205,19 @@ describe('CustomerController (e2e)', () => {
       .expect(401)
     })
 
+    it('should return 403 forbidden', async () => {
+      jest.spyOn(AuthService.prototype, 'validateCustomer').mockImplementation(async (username, password) => Promise.resolve(customer))
+      const data = { username: 'test', password: 'Password@123' }
+      const { access_token } = await (await request(app.getHttpServer()).post('/customers/login').send(data)).body;
+
+      const dto = { username: 'test', first_name: 'test', last_name: 'user' }
+
+      jest.spyOn(JwtStrategy.prototype, 'validate').mockImplementation(async (payload) => Promise.resolve(customer))
+      return request(app.getHttpServer())
+      .patch('/customers/:id').send(data).set('Authorization', `Bearer ${access_token}`)
+      .expect(403)
+    })
+
     it('should return 200 success', async () => {
       jest.spyOn(AuthService.prototype, 'validateCustomer').mockImplementation(async (username, password) => Promise.resolve(admin))
       const data = { username: 'test', password: 'Password@123' }
@@ -201,7 +227,31 @@ describe('CustomerController (e2e)', () => {
 
       jest.spyOn(JwtStrategy.prototype, 'validate').mockImplementation(async (payload) => Promise.resolve(admin))
       return request(app.getHttpServer())
-      .patch('/customers/:id').send(dto).set('Authorization', `Bearer ${access_token}`)
+      .patch('/customers/:id').set('Authorization', `Bearer ${access_token}`)
+      .expect(200) //.then(response => console.log(response.body['error'])).catch(err => console.log(err))
+    })
+  })
+
+  describe('(PATCH) /customers/', () => {
+
+    it('should return 401 unauthorized', () => {
+      const data = { username: 'test', first_name: 'test', last_name: 'user' }
+
+      return request(app.getHttpServer())
+      .patch('/customers/').send(data)
+      .expect(401)
+    })
+
+    it('should return 200 success', async () => {
+      jest.spyOn(AuthService.prototype, 'validateCustomer').mockImplementation(async (username, password) => Promise.resolve(admin))
+      const data = { username: 'test', password: 'Password@123' }
+      const { access_token } = await (await request(app.getHttpServer()).post('/customers/login').send(data)).body;
+
+      const dto = { username: 'test', first_name: 'test', last_name: 'user' }
+
+      jest.spyOn(JwtStrategy.prototype, 'validate').mockImplementation(async (payload) => Promise.resolve(admin))
+      return request(app.getHttpServer())
+      .patch('/customers/').send().set('Authorization', `Bearer ${access_token}`)
       .expect(200) //.then(response => console.log(response.body['error'])).catch(err => console.log(err))
     })
   })

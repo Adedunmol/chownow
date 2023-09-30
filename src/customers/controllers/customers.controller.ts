@@ -2,7 +2,7 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, UsePipes, Request, V
 import { CustomersService } from '../services/customers.service';
 import { UpdateCustomerAdminDto, UpdateCustomerDto } from '../dto/update-customer.dto';
 import { CreateCustomerDto } from '../dto/create-customer.dto';
-import { ApiTags, ApiConflictResponse, ApiCreatedResponse, ApiBadRequestResponse, ApiOkResponse, ApiUnauthorizedResponse, ApiBody } from '@nestjs/swagger';
+import { ApiTags, ApiConflictResponse, ApiCreatedResponse, ApiBadRequestResponse, ApiOkResponse, ApiUnauthorizedResponse, ApiBody, ApiForbiddenResponse } from '@nestjs/swagger';
 import { LoginCustomerDto } from '../dto/login-customer.dto';
 import { CustomerAuthGuard } from '../../auth/guards/local-auth.guard';
 import { AuthService } from '../../auth/auth.service';
@@ -41,12 +41,17 @@ export class CustomersController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Get()
   @UseInterceptors(ClassSerializerInterceptor)
+  @ApiOkResponse({ description: 'Success' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+  @ApiForbiddenResponse({ description: 'Forbidden' })
   getCustomers() {
     return this.customersService.findCustomers();
   }
 
   @UseGuards(JwtAuthGuard)
   @Get(':id')
+  @ApiOkResponse({ description: 'Success' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.customersService.findById(id);
   }
@@ -54,6 +59,11 @@ export class CustomersController {
   @Roles(Role.ADMIN)
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Patch(':id')
+  @UsePipes(ValidationPipe)
+  @UseInterceptors(ClassSerializerInterceptor)
+  @ApiOkResponse({ description: 'Success' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+  @ApiForbiddenResponse({ description: 'Forbidden' })
   updateAdmin(@Param('id', ParseIntPipe) id: number, @Body() updateCustomerAdminDto: UpdateCustomerAdminDto) {
     console.log('running')
     return this.customersService.updateAdmin(id, updateCustomerAdminDto);
@@ -61,6 +71,9 @@ export class CustomersController {
 
   @UseGuards(JwtAuthGuard)
   @Patch()
+  @UsePipes(ValidationPipe)
+  @ApiOkResponse({ description: 'Success' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
   update(@Request() req, @Body() updateCustomerDto: UpdateCustomerDto) {
     return this.customersService.update(req.user.id, updateCustomerDto);
   }
