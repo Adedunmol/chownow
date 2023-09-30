@@ -91,7 +91,6 @@ export class CustomersController {
   @Delete()
   @ApiOkResponse({ description: 'Success' })
   @ApiUnauthorizedResponse({ description: 'Unauthorized' })
-  @ApiForbiddenResponse({ description: 'Forbidden' })
   remove(@Request() req) {
     return this.customersService.remove(req.user.id);
   }

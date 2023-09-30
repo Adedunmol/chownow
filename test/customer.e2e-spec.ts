@@ -293,4 +293,28 @@ describe('CustomerController (e2e)', () => {
       .expect(200)
     })
   })
+  
+  describe('(DELETE) /customers/', () => {
+
+    it('should return 401 unauthorized', () => {
+      const data = { username: 'test', first_name: 'test', last_name: 'user' }
+
+      return request(app.getHttpServer())
+      .delete('/customers/')
+      .expect(401)
+    })
+
+    it('should delete customer and return 200 success', async () => {
+      jest.spyOn(AuthService.prototype, 'validateCustomer').mockImplementation(async (username, password) => Promise.resolve(customer))
+      const data = { username: 'test', password: 'Password@123' }
+      const { access_token } = await (await request(app.getHttpServer()).post('/customers/login').send(data)).body;
+
+      const dto = { username: 'test', first_name: 'test', last_name: 'user' }
+
+      jest.spyOn(JwtStrategy.prototype, 'validate').mockImplementation(async (payload) => Promise.resolve(customer))
+      return request(app.getHttpServer())
+      .delete('/customers/').set('Authorization', `Bearer ${access_token}`)
+      .expect(200)
+    })
+  })
 });
