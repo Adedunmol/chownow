@@ -26,7 +26,8 @@ describe('CustomersController', () => {
     findCustomers: jest.fn(() => customers),
     findById: jest.fn(id => customer),
     updateAdmin: jest.fn((id, dto) => customer),
-    update: jest.fn((id, dto) => customer)
+    update: jest.fn((id, dto) => customer),
+    remove: jest.fn(id => customer)
   }
 
   const mockAuthService = {
@@ -115,4 +116,22 @@ describe('CustomersController', () => {
     })
   })
 
+  describe('removeAdmin', () => {
+
+    it('should remove and return customer', async () => {
+
+      expect(await controller.removeAdmin(1)).toEqual(customer)
+    })
+  })
+
+  describe('remove', () => {
+
+    it('should remove and return customer', async () => {
+      const req = {
+        user: customer
+      }
+
+      expect(await controller.remove(req)).toEqual(customer)
+    })
+  })
 });
