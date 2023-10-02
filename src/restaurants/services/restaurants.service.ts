@@ -1,6 +1,6 @@
-import { Injectable, ConflictException, Inject } from '@nestjs/common';
+import { Injectable, ConflictException, Inject, NotFoundException } from '@nestjs/common';
 import { CreateRestaurantDto } from '../dto/create-restaurant.dto';
-import { UpdateRestaurantDto } from '../dto/update-restaurant.dto';
+import { UpdateRestaurantAdminDto, UpdateRestaurantDto } from '../dto/update-restaurant.dto';
 import { SerializedRestaurant } from '../types';
 import { encodePassword } from '../../utils/bcrypt';
 import { Restaurant } from '../../typeorm';
@@ -24,7 +24,7 @@ export class RestaurantsService {
   }
 
   async findAll() {
-    return (await this.restaurantsRepository.find()).map(customer => new SerializedRestaurant(customer))
+    return (await this.restaurantsRepository.find()).map(restaurant => new SerializedRestaurant(restaurant))
 
   }
 
@@ -50,6 +50,16 @@ export class RestaurantsService {
 
   update(id: number, updateRestaurantDto: UpdateRestaurantDto) {
     return `This action updates a #${id} restaurant`;
+  }
+
+  async updateAdmin(id: number, updateRestaurantAdminDto: UpdateRestaurantAdminDto) {
+    const restaurant = await this.findById(id);
+
+    if (!restaurant) throw new NotFoundException('No restaurant with this id');
+
+    restaurant.restaurant_name = updateRestaurantAdminDto.restaurant_name || restaurant.restaurant_name;
+
+    return new SerializedRestaurant(await this.restaurantsRepository.save(restaurant));  
   }
 
   remove(id: number) {

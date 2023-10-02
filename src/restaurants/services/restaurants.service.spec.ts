@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Restaurant } from '../../typeorm';
 import { RestaurantsService } from './restaurants.service';
-import { ConflictException } from '@nestjs/common';
+import { ConflictException, NotFoundException } from '@nestjs/common';
 
 describe('RestaurantsService', () => {
   let service: RestaurantsService;
@@ -92,6 +92,28 @@ describe('RestaurantsService', () => {
     it('should return null', async () => {
 
       expect(await service.findById(1)).toEqual(restaurants[0])
+    })
+  })
+
+  describe('updateAdmin', () => {
+
+    it('should update a restaurant (admin)', async () => {
+      const dto = { restaurant_name: 'new bites' }
+
+      expect(await service.updateAdmin(123, dto)).toEqual({
+        id: expect.any(Number),
+        ...dto,
+        role: 'Restaurant',
+        date_joined: expect.any(Date)
+      })
+    })
+
+    it('should throw NotFoundException', async () => {
+      mockRestaurantsRepository.findOne.mockImplementation((query) => null)
+      const dto = { restaurant_name: 'new bites' }
+
+      expect(async () => await service.updateAdmin(1, dto)).rejects.toEqual(new NotFoundException('No restaurant with this id'))
+
     })
   })
 });

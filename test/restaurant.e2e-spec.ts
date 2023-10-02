@@ -40,6 +40,16 @@ describe('RestaurantController (e2e)', () => {
     date_joined: new Date()
   }
 
+  const admin = {
+    id: 1,
+    username: 'Admin',
+    first_name: 'test',
+    password: 'password',
+    last_name: 'user',
+    role: Role.ADMIN,
+    date_joined: new Date()
+  }
+
   const mockCustomersRepository = {
     create: jest.fn(dto => dto),
     findOne: jest.fn(query => null),
@@ -202,6 +212,44 @@ describe('RestaurantController (e2e)', () => {
       return request(app.getHttpServer())
           .get('/restaurants/')
           .expect(401)
+    })
+  })
+
+  
+  describe('(PATCH) /restaurants/:id (Admin)', () => {
+
+    it('should return 401 unauthorized', () => {
+      const data = { username: 'test', first_name: 'test', last_name: 'user' }
+
+      return request(app.getHttpServer())
+      .patch('/restaurants/1').send(data)
+      .expect(401)
+    })
+
+    it('should return 403 forbidden', async () => {
+      jest.spyOn(AuthService.prototype, 'validateCustomer').mockImplementation(async (username, password) => Promise.resolve(customer))
+      const data = { username: 'test', password: 'Password@123' }
+      const { access_token } = await (await request(app.getHttpServer()).post('/customers/login').send(data)).body;
+
+      const dto = { restaurant_name: 'new bites' }
+
+      jest.spyOn(JwtStrategy.prototype, 'validate').mockImplementation(async (payload) => Promise.resolve(customer))
+      return request(app.getHttpServer())
+      .patch('/restaurants/1').send(data).set('Authorization', `Bearer ${access_token}`)
+      .expect(403)
+    })
+
+    it('should update and return 200 success', async () => {
+      jest.spyOn(AuthService.prototype, 'validateCustomer').mockImplementation(async (username, password) => Promise.resolve(admin))
+      const data = { username: 'test', password: 'Password@123' }
+      const { access_token } = await (await request(app.getHttpServer()).post('/customers/login').send(data)).body;
+
+      const dto = { restaurant_name: 'new bites' }
+
+      jest.spyOn(JwtStrategy.prototype, 'validate').mockImplementation(async (payload) => Promise.resolve(admin))
+      return request(app.getHttpServer())
+      .patch('/restaurants/1').set('Authorization', `Bearer ${access_token}`)
+      .expect(200)
     })
   })
 });
