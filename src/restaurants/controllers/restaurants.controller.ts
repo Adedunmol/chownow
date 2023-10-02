@@ -68,6 +68,18 @@ export class RestaurantsController {
     return this.restaurantsService.updateAdmin(id, updateRestaurantAdminDto);
   }
 
+  @Roles(Role.RESTAURANT)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Patch()
+  @UsePipes(ValidationPipe)
+  @UseInterceptors(ClassSerializerInterceptor)
+  @ApiOkResponse({ description: 'Success' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+  @ApiForbiddenResponse({ description: 'Forbidden' })
+  update(@Request() req, @Body() updateRestaurantDto: UpdateRestaurantDto) {
+    return this.restaurantsService.update(req.user.id, updateRestaurantDto);
+  }
+
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.restaurantsService.remove(+id);

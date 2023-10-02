@@ -116,4 +116,27 @@ describe('RestaurantsService', () => {
 
     })
   })
+
+  describe('update', () => {
+
+    it('should update a restaurant', async () => {
+      mockRestaurantsRepository.findOne.mockImplementation((query) => true)
+      const dto = { restaurant_name: 'new bites' }
+
+      expect(await service.update(1, dto)).toEqual({
+        id: expect.any(Number),
+        ...dto,
+        role: 'Restaurant',
+        date_joined: expect.any(Date)
+      })
+    })
+
+    it('should throw NotFoundException', async () => {
+      mockRestaurantsRepository.findOne.mockImplementation((query) => null)
+      const dto = { restaurant_name: 'new bites' }
+
+      expect(async () => await service.update(1, dto)).rejects.toEqual(new NotFoundException('No restaurant with this id'))
+
+    })
+  })
 });

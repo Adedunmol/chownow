@@ -21,7 +21,8 @@ describe('RestaurantsController', () => {
     }),
     findAll: jest.fn(() => restaurants),
     findById: jest.fn(id => restaurants[0]),
-    updateAdmin: jest.fn((id, dto) => ({ id, ...dto, date_joined: new Date() }))
+    updateAdmin: jest.fn((id, dto) => ({ id, ...dto, date_joined: new Date() })),
+    update: jest.fn((id, dto) => ({ id, ...dto, date_joined: new Date() })),
   }
 
   const mockAuthService = {
@@ -103,6 +104,22 @@ describe('RestaurantsController', () => {
     it('should return updated restaurant (Admin)', async () => {
       const dto = { restaurant_name: 'new bites' }
       expect(await controller.updateAdmin(1, dto)).toEqual({
+        id: expect.any(Number),
+        ...dto,
+        date_joined: expect.any(Date)
+      })
+    })
+  })
+
+  describe('update', () => {
+
+    it('should return updated restaurant', async () => {
+      const dto = { restaurant_name: 'new bites' }
+      const req = {
+        user: restaurants[0]
+      }
+
+      expect(await controller.update(req, dto)).toEqual({
         id: expect.any(Number),
         ...dto,
         date_joined: expect.any(Date)

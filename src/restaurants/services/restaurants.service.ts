@@ -48,8 +48,15 @@ export class RestaurantsService {
     return `This action returns a #${id} restaurant`;
   }
 
-  update(id: number, updateRestaurantDto: UpdateRestaurantDto) {
-    return `This action updates a #${id} restaurant`;
+  async update(id: number, updateRestaurantDto: UpdateRestaurantDto) {
+    const restaurant = await this.findById(id);
+
+    if (!restaurant) throw new NotFoundException('No restaurant with this id');
+
+    restaurant.restaurant_name = updateRestaurantDto.restaurant_name || restaurant.restaurant_name;
+    restaurant.password = updateRestaurantDto.password ? encodePassword(updateRestaurantDto.password) : restaurant.restaurant_name;
+
+    return new SerializedRestaurant(await this.restaurantsRepository.save(restaurant)); 
   }
 
   async updateAdmin(id: number, updateRestaurantAdminDto: UpdateRestaurantAdminDto) {
