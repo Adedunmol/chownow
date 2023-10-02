@@ -48,7 +48,7 @@ export class AuthService {
     }
 
     async loginCustomer(customer: SerializedCustomer) {
-        const payload = { username: customer.username, sub: customer.id };
+        const payload = { username: customer.username, sub: customer.id, role: 'Customer' };
 
         return {
             access_token: this.jwtService.sign(payload),
@@ -56,7 +56,7 @@ export class AuthService {
     }
 
     async loginRestaurant(restaurant: SerializedRestaurant) {
-        const payload = { restaurant_name: restaurant.restaurant_name, sub: restaurant.id };
+        const payload = { restaurant_name: restaurant.restaurant_name, sub: restaurant.id, role: 'Restaurant' };
 
         return {
             access_token: this.jwtService.sign(payload),
@@ -64,7 +64,7 @@ export class AuthService {
     }
 
     async loginDriver(driver: SerializedDriver) {
-        const payload = { username: driver.username, sub: driver.id };
+        const payload = { username: driver.username, sub: driver.id, role: 'Driver' };
 
         return {
             access_token: this.jwtService.sign(payload),

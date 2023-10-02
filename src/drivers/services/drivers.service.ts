@@ -31,6 +31,14 @@ export class DriversService {
     return new SerializedDriver(customer)
   }
 
+  async findById(id: number) {
+    const restaurant = await this.driversRepository.findOne({ where: { id } });
+
+    if (!restaurant) return null;
+
+    return new SerializedDriver(restaurant)
+  }
+
   findAll() {
     return `This action returns all drivers`;
   }

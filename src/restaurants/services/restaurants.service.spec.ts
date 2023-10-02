@@ -17,6 +17,7 @@ describe('RestaurantsService', () => {
     }),
     findOne: jest.fn(query => null),
     find: jest.fn(() => restaurants),
+    findAll: jest.fn(() => restaurants)
   };
 
   beforeEach(async () => {
@@ -68,6 +69,15 @@ describe('RestaurantsService', () => {
     it('should return null', async () => {
 
       expect(await service.findByName('test1')).toEqual(restaurants[0])
+    })
+  })
+
+  describe('findAll', () => {
+
+    it('should get all restaurants', async () => {
+      mockRestaurantsRepository.findAll.mockImplementation(() => restaurants)
+
+      expect(await service.findAll()).toEqual(restaurants)
     })
   })
 });

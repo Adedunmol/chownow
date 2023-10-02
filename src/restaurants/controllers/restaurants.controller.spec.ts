@@ -11,11 +11,15 @@ describe('RestaurantsController', () => {
     password: 'password'
   }
 
+  const restaurants = [{ id: Date.now(), restaurant_name: 'test1', date_joined: new Date(), role: 'Restaurant' }]
+
+
   const mockRestaurantsService = {
     create: jest.fn((dto) => { 
       const { password, ...others } = dto;
       return { id: Date.now(), ...others, date_joined: new Date(), role: 'Restaurant' }
-    })
+    }),
+    findAll: jest.fn(() => restaurants)
   }
 
   const mockAuthService = {
@@ -66,6 +70,19 @@ describe('RestaurantsController', () => {
       expect(controller.loginRestaurant(req)).toEqual({
        access_token: expect.any(String) 
       })
+
+      expect(mockAuthService.loginRestaurant).toHaveBeenCalled()
+    })
+  })
+
+  describe('findAll', () => {
+    
+    it('should get restaurants', () => {
+      const req = {
+        user: restaurant
+      }
+
+      expect(controller.findAll()).toEqual(restaurants)
 
       expect(mockAuthService.loginRestaurant).toHaveBeenCalled()
     })

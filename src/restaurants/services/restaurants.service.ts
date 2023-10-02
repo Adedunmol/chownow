@@ -23,8 +23,9 @@ export class RestaurantsService {
     return new SerializedRestaurant(await this.restaurantsRepository.save(newRestaurant))
   }
 
-  findAll() {
-    return `This action returns all restaurants`;
+  async findAll() {
+    return (await this.restaurantsRepository.find()).map(customer => new SerializedRestaurant(customer))
+
   }
 
   async findByName(restaurant_name: string): Promise<SerializedRestaurant | null> {

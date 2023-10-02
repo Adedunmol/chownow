@@ -7,6 +7,7 @@ import { ApiCreatedResponse, ApiBadRequestResponse, ApiConflictResponse } from '
 import { RestaurantAuthGuard } from '../../auth/guards/local-auth.guard';
 import { AuthService } from '../../auth/auth.service';
 import { LoginRestaurantDto } from '../dto/login-restaurant.dto';
+import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 
 @ApiTags('Restaurants')
 @Controller('restaurants')
@@ -34,7 +35,11 @@ export class RestaurantsController {
     return this.authService.loginRestaurant(req.user)
   }
 
+  @UseGuards(JwtAuthGuard)
   @Get()
+  @UseInterceptors(ClassSerializerInterceptor)
+  @ApiOkResponse({ description: 'Success' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
   findAll() {
     return this.restaurantsService.findAll();
   }
