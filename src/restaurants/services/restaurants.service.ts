@@ -36,8 +36,12 @@ export class RestaurantsService {
     return new SerializedRestaurant(restaurant)
   }
 
-  findById(id: number) {
-    return {}
+  async findById(id: number) {
+    const restaurant = await this.restaurantsRepository.findOne({ where: { id } });
+
+    if (!restaurant) return null;
+
+    return new SerializedRestaurant(restaurant)
   }
 
   findOne(id: number) {

@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UsePipes, ValidationPipe, UseInterceptors, ClassSerializerInterceptor, UseGuards, HttpCode, Request } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UsePipes, ValidationPipe, UseInterceptors, ClassSerializerInterceptor, UseGuards, HttpCode, Request, ParseIntPipe } from '@nestjs/common';
 import { RestaurantsService } from '../services/restaurants.service';
 import { CreateRestaurantDto } from '../dto/create-restaurant.dto';
 import { UpdateRestaurantDto } from '../dto/update-restaurant.dto';
@@ -44,9 +44,13 @@ export class RestaurantsController {
     return this.restaurantsService.findAll();
   }
 
+  @UseGuards(JwtAuthGuard)
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.restaurantsService.findOne(+id);
+  @UseInterceptors(ClassSerializerInterceptor)
+  @ApiOkResponse({ description: 'Success' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+  findOne(@Param('id', ParseIntPipe) id: number) {
+    return this.restaurantsService.findById(id);
   }
 
   @Patch(':id')

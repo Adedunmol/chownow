@@ -80,4 +80,18 @@ describe('RestaurantsService', () => {
       expect(await service.findAll()).toEqual(restaurants)
     })
   })
+
+  describe('findById', () => {
+
+    it('should get a restaurant', async () => {
+      mockRestaurantsRepository.findOne.mockImplementation((query) => restaurants[0])
+
+      expect(await service.findById(1)).toEqual(restaurants[0])
+    })
+
+    it('should return null', async () => {
+
+      expect(await service.findById(1)).toEqual(restaurants[0])
+    })
+  })
 });

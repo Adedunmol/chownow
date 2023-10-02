@@ -19,7 +19,8 @@ describe('RestaurantsController', () => {
       const { password, ...others } = dto;
       return { id: Date.now(), ...others, date_joined: new Date(), role: 'Restaurant' }
     }),
-    findAll: jest.fn(() => restaurants)
+    findAll: jest.fn(() => restaurants),
+    findById: jest.fn(id => restaurants[0])
   }
 
   const mockAuthService = {
@@ -85,6 +86,14 @@ describe('RestaurantsController', () => {
       expect(controller.findAll()).toEqual(restaurants)
 
       expect(mockAuthService.loginRestaurant).toHaveBeenCalled()
+    })
+  })
+
+  describe('findOne', () => {
+
+    it('should return a restaurant', async () => {
+
+      expect(await controller.findOne(1)).toEqual(restaurants[0])
     })
   })
 });
