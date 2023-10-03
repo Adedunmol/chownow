@@ -17,7 +17,8 @@ describe('RestaurantsService', () => {
     }),
     findOne: jest.fn(query => null),
     find: jest.fn(() => restaurants),
-    findAll: jest.fn(() => restaurants)
+    findAll: jest.fn(() => restaurants),
+    remove: jest.fn(data => data)
   };
 
   beforeEach(async () => {
@@ -120,7 +121,7 @@ describe('RestaurantsService', () => {
   describe('update', () => {
 
     it('should update a restaurant', async () => {
-      mockRestaurantsRepository.findOne.mockImplementation((query) => true)
+      mockRestaurantsRepository.findOne.mockImplementation((query) => restaurants[0])
       const dto = { restaurant_name: 'new bites' }
 
       expect(await service.update(1, dto)).toEqual({
@@ -137,6 +138,26 @@ describe('RestaurantsService', () => {
 
       expect(async () => await service.update(1, dto)).rejects.toEqual(new NotFoundException('No restaurant with this id'))
 
+    })
+  })
+
+  describe('remove', () => {
+
+    it('should throw NotFoundException', async () => {
+      mockRestaurantsRepository.findOne.mockImplementation((query) => null)
+
+      expect(async () => await service.remove(1)).rejects.toEqual(new NotFoundException('No customer with this id'))
+    })
+
+    it('should remove a restaurant', async () => {
+      mockRestaurantsRepository.findOne.mockImplementation((query) => restaurants[0])
+
+      expect(await service.remove(1)).toEqual({
+        id: expect.any(Number),
+        ...restaurants[0],
+        role: 'Restaurant',
+        date_joined: expect.any(Date)
+      })
     })
   })
 });

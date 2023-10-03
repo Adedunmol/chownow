@@ -27,7 +27,8 @@ describe('RestaurantController (e2e)', () => {
     save: jest.fn(dto => {
         return Promise.resolve({ id: Date.now(), ...dto, date_joined: new Date() })
     }),
-    find: jest.fn(() => restaurants) 
+    find: jest.fn(() => restaurants),
+    remove: jest.fn(data => data)
   }
 
   const customer = {
@@ -235,7 +236,7 @@ describe('RestaurantController (e2e)', () => {
 
       jest.spyOn(JwtStrategy.prototype, 'validate').mockImplementation(async (payload) => Promise.resolve(customer))
       return request(app.getHttpServer())
-      .patch('/restaurants/1').send(data).set('Authorization', `Bearer ${access_token}`)
+      .patch('/restaurants/1').send(dto).set('Authorization', `Bearer ${access_token}`)
       .expect(403)
     })
 
@@ -243,8 +244,6 @@ describe('RestaurantController (e2e)', () => {
       jest.spyOn(AuthService.prototype, 'validateCustomer').mockImplementation(async (username, password) => Promise.resolve(admin))
       const data = { username: 'test', password: 'Password@123' }
       const { access_token } = await (await request(app.getHttpServer()).post('/customers/login').send(data)).body;
-
-      const dto = { restaurant_name: 'new bites' }
 
       jest.spyOn(JwtStrategy.prototype, 'validate').mockImplementation(async (payload) => Promise.resolve(admin))
       return request(app.getHttpServer())
@@ -272,7 +271,7 @@ describe('RestaurantController (e2e)', () => {
 
       jest.spyOn(JwtStrategy.prototype, 'validate').mockImplementation(async (payload) => Promise.resolve(customer))
       return request(app.getHttpServer())
-      .patch('/restaurants/').send(data).set('Authorization', `Bearer ${access_token}`)
+      .patch('/restaurants/').send(dto).set('Authorization', `Bearer ${access_token}`)
       .expect(403)
     })
 
@@ -285,7 +284,7 @@ describe('RestaurantController (e2e)', () => {
 
       jest.spyOn(JwtStrategy.prototype, 'validate').mockImplementation(async (payload) => Promise.resolve(admin))
       return request(app.getHttpServer())
-      .patch('/restaurants/').send(data).set('Authorization', `Bearer ${access_token}`)
+      .patch('/restaurants/').send(dto).set('Authorization', `Bearer ${access_token}`)
       .expect(403)
     })
 
@@ -294,11 +293,68 @@ describe('RestaurantController (e2e)', () => {
       const data = { username: 'test', password: 'Password@123' }
       const { access_token } = await (await request(app.getHttpServer()).post('/customers/login').send(data)).body;
 
-      const dto = { username: 'test', first_name: 'test', last_name: 'user' }
-
       jest.spyOn(JwtStrategy.prototype, 'validate').mockImplementation(async (payload) => Promise.resolve(restaurant))
       return request(app.getHttpServer())
       .patch('/restaurants/').send().set('Authorization', `Bearer ${access_token}`)
+      .expect(200)
+    })
+  })
+    
+  describe('(DELETE) /restaurants/:id (Admin)', () => {
+
+    it('should return 401 unauthorized', () => {
+      const data = { username: 'test', first_name: 'test', last_name: 'user' }
+
+      return request(app.getHttpServer())
+      .delete('/restaurants/1')
+      .expect(401)
+    })
+
+    it('should return 403 forbidden', async () => {
+      jest.spyOn(AuthService.prototype, 'validateCustomer').mockImplementation(async (username, password) => Promise.resolve(customer))
+      const data = { username: 'test', password: 'Password@123' }
+      const { access_token } = await (await request(app.getHttpServer()).post('/customers/login').send(data)).body;
+
+      const dto = { username: 'test', first_name: 'test', last_name: 'user' }
+
+      jest.spyOn(JwtStrategy.prototype, 'validate').mockImplementation(async (payload) => Promise.resolve(customer))
+      return request(app.getHttpServer())
+      .delete('/restaurants/1').set('Authorization', `Bearer ${access_token}`)
+      .expect(403)
+    })
+
+    it('should delete restaurant and return 200 success', async () => {
+      jest.spyOn(AuthService.prototype, 'validateCustomer').mockImplementation(async (username, password) => Promise.resolve(admin))
+      const data = { username: 'test', password: 'Password@123' }
+      const { access_token } = await (await request(app.getHttpServer()).post('/customers/login').send(data)).body;
+
+      jest.spyOn(JwtStrategy.prototype, 'validate').mockImplementation(async (payload) => Promise.resolve(admin))
+      return request(app.getHttpServer())
+      .delete('/restaurants/1').set('Authorization', `Bearer ${access_token}`)
+      .expect(200)
+    })
+  })
+  
+  describe('(DELETE) /restaurants/', () => {
+
+    it('should return 401 unauthorized', () => {
+      const data = { username: 'test', first_name: 'test', last_name: 'user' }
+
+      return request(app.getHttpServer())
+      .delete('/restaurants/')
+      .expect(401)
+    })
+
+    it('should delete restaurant and return 200 success', async () => {
+      jest.spyOn(AuthService.prototype, 'validateRestaurant').mockImplementation(async (username, password) => Promise.resolve(restaurant))
+      const data = { restaurant_name: 'test', password: 'Password@123' }
+      const { access_token } = await (await request(app.getHttpServer()).post('/restaurants/login').send(data)).body;
+
+      console.log(access_token)
+
+      jest.spyOn(JwtStrategy.prototype, 'validate').mockImplementation(async (payload) => Promise.resolve(restaurant))
+      return request(app.getHttpServer())
+      .delete('/restaurants/').set('Authorization', `Bearer ${access_token}`)
       .expect(200)
     })
   })

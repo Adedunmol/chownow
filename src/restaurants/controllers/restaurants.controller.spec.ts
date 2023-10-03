@@ -23,6 +23,7 @@ describe('RestaurantsController', () => {
     findById: jest.fn(id => restaurants[0]),
     updateAdmin: jest.fn((id, dto) => ({ id, ...dto, date_joined: new Date() })),
     update: jest.fn((id, dto) => ({ id, ...dto, date_joined: new Date() })),
+    remove: jest.fn(id => restaurants[0])
   }
 
   const mockAuthService = {
@@ -127,4 +128,22 @@ describe('RestaurantsController', () => {
     })
   })
 
+  describe('removeAdmin', () => {
+
+    it('should remove and return restaurant', async () => {
+
+      expect(await controller.removeAdmin(1)).toEqual(restaurants[0])
+    })
+  })
+
+  describe('remove', () => {
+
+    it('should remove and return restaurant', async () => {
+      const req = {
+        user: restaurant
+      }
+
+      expect(await controller.remove(req)).toEqual(restaurants[0])
+    })
+  })
 });

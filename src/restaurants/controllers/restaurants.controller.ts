@@ -80,8 +80,21 @@ export class RestaurantsController {
     return this.restaurantsService.update(req.user.id, updateRestaurantDto);
   }
 
+  @UseGuards(JwtAuthGuard)
+  @Delete()
+  @ApiOkResponse({ description: 'Success' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+  remove(@Request() req) {
+    return this.restaurantsService.remove(req.user.id);
+  }
+
+  @Roles(Role.ADMIN)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.restaurantsService.remove(+id);
+  @ApiOkResponse({ description: 'Success' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+  @ApiForbiddenResponse({ description: 'Forbidden' })
+  removeAdmin(@Param('id', ParseIntPipe) id: number) {
+    return this.restaurantsService.remove(id);
   }
 }

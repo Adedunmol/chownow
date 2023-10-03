@@ -69,7 +69,13 @@ export class RestaurantsService {
     return new SerializedRestaurant(await this.restaurantsRepository.save(restaurant));  
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} restaurant`;
+  async remove(id: number) {
+    const restaurant = await this.restaurantsRepository.findOne({ where: { id } });
+
+    if (!restaurant) throw new NotFoundException('No customer with this id');
+
+    const result = await this.restaurantsRepository.remove(restaurant);
+
+    return result;
   }
 }
