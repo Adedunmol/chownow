@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, ValidationPipe, UsePipes, UseInterceptors, ClassSerializerInterceptor, UseGuards, HttpCode, Request } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, ValidationPipe, ParseIntPipe, UsePipes, UseInterceptors, ClassSerializerInterceptor, UseGuards, HttpCode, Request } from '@nestjs/common';
 import { DriversService } from '../services/drivers.service';
 import { CreateDriverDto } from '../dto/create-driver.dto';
 import { UpdateDriverDto } from '../dto/update-driver.dto';
@@ -48,6 +48,14 @@ export class DriversController {
     return this.driversService.findDrivers();
   }
 
+  @UseGuards(JwtAuthGuard)
+  @Get(':id')
+  @ApiOkResponse({ description: 'Success' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+  findOne(@Param('id', ParseIntPipe) id: number) {
+    return this.driversService.findById(id);
+  }
+
   @Post()
   create(@Body() createDriverDto: CreateDriverDto) {
     return this.driversService.create(createDriverDto);
@@ -56,11 +64,6 @@ export class DriversController {
   @Get()
   findAll() {
     return this.driversService.findAll();
-  }
-
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.driversService.findOne(+id);
   }
 
   @Patch(':id')

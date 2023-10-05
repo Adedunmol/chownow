@@ -22,7 +22,8 @@ describe('DriversController', () => {
       const { password, ...others } = dto;
       return { id: Date.now(), ...others, date_joined: new Date(), role: 'Driver' }
     }),
-    findDrivers: jest.fn(() => drivers)
+    findDrivers: jest.fn(() => drivers),
+    findById: jest.fn(id => driver),
   }
 
   const mockAuthService = {
@@ -84,6 +85,14 @@ describe('DriversController', () => {
     it('should return drivers', async () => {
 
       expect(await controller.getDrivers()).toEqual(drivers)
+    })
+  })
+
+  describe('findOne', () => {
+
+    it('should return a driver', async () => {
+
+      expect(await controller.findOne(1)).toEqual(driver)
     })
   })
 });

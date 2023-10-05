@@ -173,4 +173,25 @@ describe('DriverController (e2e)', () => {
       .expect(403)
     })
   })
+
+  describe('(GET) /drivers/:id', () => {
+
+    it('should return 401 unauthorized', () => {
+
+      return request(app.getHttpServer())
+      .get('/drivers/1')
+      .expect(401)
+    })
+
+    it('should get a driver and return 200 success', async () => {
+
+      jest.spyOn(AuthService.prototype, 'validateCustomer').mockImplementation(async (username, password) => Promise.resolve(driver))
+      const data = { username: 'test', password: 'Password@123' }
+      const { access_token } = await (await request(app.getHttpServer()).post('/drivers/login').send(data)).body;
+
+      return request(app.getHttpServer())
+      .get('/drivers/1').set('Authorization', `Bearer ${access_token}`)
+      .expect(200)
+    })
+  })
 });
