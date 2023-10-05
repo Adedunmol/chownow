@@ -12,9 +12,22 @@ import { RestaurantsModule } from '../src/restaurants/restaurants.module';
 import { DriversModule } from '../src/drivers/drivers.module';
 import { Driver } from '../src/drivers/entities/driver.entity';
 import { Role } from '../src/utils/role.enum';
+import { JwtStrategy } from '../src/auth/strategies/jwt.strategy';
 
 describe('DriverController (e2e)', () => {
   let app: INestApplication;
+
+  const driver = {
+    id: 1,
+    username: 'test',
+    first_name: 'test',
+    password: 'password',
+    last_name: 'user',
+    role: Role.DRIVER,
+    date_joined: new Date()
+  }
+
+  const drivers = [driver];
 
   const mockCustomersRepository = {
     create: jest.fn(dto => dto),
@@ -37,16 +50,17 @@ describe('DriverController (e2e)', () => {
     findOne: jest.fn(query => null),
     save: jest.fn(dto => {
         return Promise.resolve({ id: Date.now(), ...dto, date_joined: new Date() })
-    })
+    }),
+    find: jest.fn(() => drivers),
   }
 
-  const driver = {
+  const admin = {
     id: 1,
-    username: 'test',
+    username: 'Admin',
     first_name: 'test',
     password: 'password',
     last_name: 'user',
-    role: Role.DRIVER,
+    role: Role.ADMIN,
     date_joined: new Date()
   }
 
@@ -111,7 +125,7 @@ describe('DriverController (e2e)', () => {
           .post('/drivers/login').send(data)
           .expect(200).then(response => {
             expect(response.body).toEqual({ access_token: expect.any(String) })
-          })
+      })
     })
 
     it('should return 401 unauthorized', () => {
@@ -121,7 +135,42 @@ describe('DriverController (e2e)', () => {
           .post('/drivers/login').send(data)
           .expect(401).then(response => {
             expect(response.body).toEqual({ message: 'Unauthorized', statusCode: 401 })
-          })
+      })
     })
-  })  
+  })
+
+  describe('(GET) /drivers/ (Admin)', () => {
+
+    it('should return 401 unauthorized', () => {
+
+      return request(app.getHttpServer())
+      .get('/drivers/')
+      .expect(401)
+    })
+
+    it('should get drivers and return 200 success', async () => {
+
+      jest.spyOn(AuthService.prototype, 'validateCustomer').mockImplementation(async (username, password) => Promise.resolve(admin))
+      const data = { username: 'test', password: 'Password@123' }
+      const { access_token } = await (await request(app.getHttpServer()).post('/customers/login').send(data)).body;
+
+      jest.spyOn(JwtStrategy.prototype, 'validate').mockImplementation(async (payload) => Promise.resolve(admin))
+      return request(app.getHttpServer())
+      .get('/drivers/').set('Authorization', `Bearer ${access_token}`)
+      .expect(200)
+    })
+
+    it('should return 403 forbidden', async () => {
+      jest.spyOn(AuthService.prototype, 'validateDriver').mockImplementation(async (username, password) => Promise.resolve(driver))
+      const data = { username: 'test', password: 'Password@123' }
+      const { access_token } = await (await request(app.getHttpServer()).post('/customers/login').send(data)).body;
+
+      const dto = { username: 'test', first_name: 'test', last_name: 'user' }
+
+      jest.spyOn(JwtStrategy.prototype, 'validate').mockImplementation(async (payload) => Promise.resolve(driver))
+      return request(app.getHttpServer())
+      .get('/drivers/').set('Authorization', `Bearer ${access_token}`)
+      .expect(403)
+    })
+  })
 });

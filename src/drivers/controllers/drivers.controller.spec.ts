@@ -15,11 +15,14 @@ describe('DriversController', () => {
     date_joined: new Date()
   }
 
+  const drivers = [{ id: 1, username: 'test1', first_name: 'test1', last_name: 'user1', date_joined: Date.now() }]
+
   const mockDriversService = {
     create: jest.fn((dto) => {
       const { password, ...others } = dto;
       return { id: Date.now(), ...others, date_joined: new Date(), role: 'Driver' }
-    })
+    }),
+    findDrivers: jest.fn(() => drivers)
   }
 
   const mockAuthService = {
@@ -73,6 +76,14 @@ describe('DriversController', () => {
       })
 
       expect(mockAuthService.loginDriver).toHaveBeenCalled()
+    })
+  })
+
+  describe('getDrivers', () => {
+
+    it('should return drivers', async () => {
+
+      expect(await controller.getDrivers()).toEqual(drivers)
     })
   })
 });

@@ -56,4 +56,12 @@ describe('DriversService', () => {
 
     })
   })
+
+  describe('findDrivers', () => {
+
+    it('should get all drivers', async () => {
+
+      expect(await service.findDrivers()).toEqual(drivers)
+    })
+  })
 });

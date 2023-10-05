@@ -39,6 +39,11 @@ export class DriversService {
     return new SerializedDriver(restaurant)
   }
 
+  async findDrivers() {
+    // @UseInterceptors(ClassSerializerInterceptor) to decorate the controller using it
+    return (await this.driversRepository.find()).map(customer => new SerializedDriver(customer))
+  }
+
   findAll() {
     return `This action returns all drivers`;
   }
