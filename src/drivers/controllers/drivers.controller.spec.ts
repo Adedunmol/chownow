@@ -12,6 +12,7 @@ describe('DriversController', () => {
     first_name: 'test',
     password: 'password',
     last_name: 'user',
+    role: 'Driver',
     date_joined: new Date()
   }
 
@@ -24,6 +25,8 @@ describe('DriversController', () => {
     }),
     findDrivers: jest.fn(() => drivers),
     findById: jest.fn(id => driver),
+    updateAdmin: jest.fn((id, dto) => driver),
+    update: jest.fn((id, dto) => driver),
   }
 
   const mockAuthService = {
@@ -95,4 +98,27 @@ describe('DriversController', () => {
       expect(await controller.findOne(1)).toEqual(driver)
     })
   })
+
+  
+  describe('updateAdmin', () => {
+
+    it('should return updated driver (Admin)', async () => {
+      const { role, ...others } = driver;
+
+      expect(await controller.updateAdmin(1, others)).toEqual(driver)
+    })
+  })
+
+  describe('update', () => {
+
+    it('should return updated driver', async () => {
+      const { role, ...others } = driver;
+      const req = {
+        user: driver
+      }
+
+      expect(await controller.update(req, others)).toEqual(driver)
+    })
+  })
+
 });

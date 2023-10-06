@@ -1,7 +1,7 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, ValidationPipe, ParseIntPipe, UsePipes, UseInterceptors, ClassSerializerInterceptor, UseGuards, HttpCode, Request } from '@nestjs/common';
 import { DriversService } from '../services/drivers.service';
 import { CreateDriverDto } from '../dto/create-driver.dto';
-import { UpdateDriverDto } from '../dto/update-driver.dto';
+import { UpdateDriverAdminDto, UpdateDriverDto } from '../dto/update-driver.dto';
 import { ApiBadRequestResponse, ApiBody, ApiConflictResponse, ApiCreatedResponse, ApiForbiddenResponse, ApiOkResponse, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger';
 import { DriverAuthGuard } from '../../auth/guards/local-auth.guard';
 import { LoginDriverDto } from '../dto/login-driver.dto';
@@ -56,19 +56,25 @@ export class DriversController {
     return this.driversService.findById(id);
   }
 
-  @Post()
-  create(@Body() createDriverDto: CreateDriverDto) {
-    return this.driversService.create(createDriverDto);
-  }
-
-  @Get()
-  findAll() {
-    return this.driversService.findAll();
-  }
-
+  @Roles(Role.ADMIN)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateDriverDto: UpdateDriverDto) {
-    return this.driversService.update(+id, updateDriverDto);
+  @UsePipes(ValidationPipe)
+  @UseInterceptors(ClassSerializerInterceptor)
+  @ApiOkResponse({ description: 'Success' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+  @ApiForbiddenResponse({ description: 'Forbidden' })
+  updateAdmin(@Param('id', ParseIntPipe) id: number, @Body() updateDriverAdminDto: UpdateDriverAdminDto) {
+    return this.driversService.updateAdmin(id, updateDriverAdminDto);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Patch()
+  @UsePipes(ValidationPipe)
+  @ApiOkResponse({ description: 'Success' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+  update(@Request() req, @Body() updateDriverDto: UpdateDriverDto) {
+    return this.driversService.update(req.user.id, updateDriverDto);
   }
 
   @Delete(':id')
