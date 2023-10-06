@@ -77,8 +77,21 @@ export class DriversController {
     return this.driversService.update(req.user.id, updateDriverDto);
   }
 
+  @Roles(Role.ADMIN)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.driversService.remove(+id);
+  @ApiOkResponse({ description: 'Success' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+  @ApiForbiddenResponse({ description: 'Forbidden' })
+  removeAdmin(@Param('id', ParseIntPipe) id: number) {
+    return this.driversService.remove(id);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Delete()
+  @ApiOkResponse({ description: 'Success' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+  remove(@Request() req) {
+    return this.driversService.remove(req.user.id);
   }
 }

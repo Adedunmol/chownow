@@ -27,6 +27,7 @@ describe('DriversController', () => {
     findById: jest.fn(id => driver),
     updateAdmin: jest.fn((id, dto) => driver),
     update: jest.fn((id, dto) => driver),
+    remove: jest.fn(id => driver)
   }
 
   const mockAuthService = {
@@ -121,4 +122,22 @@ describe('DriversController', () => {
     })
   })
 
+  describe('removeAdmin', () => {
+
+    it('should remove and return driver', async () => {
+
+      expect(await controller.removeAdmin(1)).toEqual(driver)
+    })
+  })
+
+  describe('remove', () => {
+
+    it('should remove and return driver', async () => {
+      const req = {
+        user: driver
+      }
+
+      expect(await controller.remove(req)).toEqual(driver)
+    })
+  })
 });

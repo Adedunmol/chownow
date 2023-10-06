@@ -52,6 +52,7 @@ describe('DriverController (e2e)', () => {
         return Promise.resolve({ id: Date.now(), ...dto, date_joined: new Date() })
     }),
     find: jest.fn(() => drivers),
+    remove: jest.fn(data => data),
   }
 
   const admin = {
@@ -256,4 +257,64 @@ describe('DriverController (e2e)', () => {
     })
   })
   
+  describe('(DELETE) /drivers/:id (Admin)', () => {
+
+    it('should return 401 unauthorized', () => {
+      const data = { username: 'test', first_name: 'test', last_name: 'user' }
+
+      return request(app.getHttpServer())
+      .delete('/drivers/1')
+      .expect(401)
+    })
+
+    it('should return 403 forbidden', async () => {
+      jest.spyOn(AuthService.prototype, 'validateDriver').mockImplementation(async (username, password) => Promise.resolve(driver))
+      const data = { username: 'test', password: 'Password@123' }
+      const { access_token } = await (await request(app.getHttpServer()).post('/customers/login').send(data)).body;
+
+      const dto = { username: 'test', first_name: 'test', last_name: 'user' }
+
+      jest.spyOn(JwtStrategy.prototype, 'validate').mockImplementation(async (payload) => Promise.resolve(driver))
+      return request(app.getHttpServer())
+      .delete('/drivers/1').set('Authorization', `Bearer ${access_token}`)
+      .expect(403)
+    })
+
+    it('should delete driver and return 200 success', async () => {
+      jest.spyOn(AuthService.prototype, 'validateCustomer').mockImplementation(async (username, password) => Promise.resolve(admin))
+      const data = { username: 'test', password: 'Password@123' }
+      const { access_token } = await (await request(app.getHttpServer()).post('/customers/login').send(data)).body;
+
+      const dto = { username: 'test', first_name: 'test', last_name: 'user' }
+
+      jest.spyOn(JwtStrategy.prototype, 'validate').mockImplementation(async (payload) => Promise.resolve(admin))
+      return request(app.getHttpServer())
+      .delete('/drivers/1').set('Authorization', `Bearer ${access_token}`)
+      .expect(200)
+    })
+  })
+  
+  describe('(DELETE) /drivers/', () => {
+
+    it('should return 401 unauthorized', () => {
+      const data = { username: 'test', first_name: 'test', last_name: 'user' }
+
+      return request(app.getHttpServer())
+      .delete('/customers/')
+      .expect(401)
+    })
+
+    it('should delete driver and return 200 success', async () => {
+      jest.spyOn(AuthService.prototype, 'validateDriver').mockImplementation(async (username, password) => Promise.resolve(driver))
+      const data = { username: 'test', password: 'Password@123' }
+      const { access_token } = await (await request(app.getHttpServer()).post('/drivers/login').send(data)).body;
+
+      const dto = { username: 'test', first_name: 'test', last_name: 'user' }
+
+      jest.spyOn(JwtStrategy.prototype, 'validate').mockImplementation(async (payload) => Promise.resolve(driver))
+      return request(app.getHttpServer())
+      .delete('/drivers/').set('Authorization', `Bearer ${access_token}`)
+      .expect(200)
+    })
+  })
 });

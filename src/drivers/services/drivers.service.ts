@@ -69,11 +69,17 @@ export class DriversService {
     return new SerializedDriver(await this.driversRepository.save(driver));
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} driver`;
-  }
+  // findOne(id: number) {
+  //   return `This action returns a #${id} driver`;
+  // }
 
-  remove(id: number) {
-    return `This action removes a #${id} driver`;
+  async remove(id: number) {
+    const driver = await this.driversRepository.findOne({ where: { id } });
+
+    if (!driver) throw new NotFoundException('No driver with this id');
+
+    const result = await this.driversRepository.remove(driver);
+
+    return result;
   }
 }
