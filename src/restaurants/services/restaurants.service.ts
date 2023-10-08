@@ -3,14 +3,18 @@ import { CreateRestaurantDto } from '../dto/create-restaurant.dto';
 import { UpdateRestaurantAdminDto, UpdateRestaurantDto } from '../dto/update-restaurant.dto';
 import { SerializedRestaurant } from '../types';
 import { encodePassword } from '../../utils/bcrypt';
-import { Restaurant } from '../../typeorm';
+import { MenuItem, Restaurant } from '../../typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { CreateMenuItemDto } from '../dto/create-menu-item.dto';
 
 @Injectable()
 export class RestaurantsService {
 
-  constructor(@InjectRepository(Restaurant) private readonly restaurantsRepository: Repository<Restaurant>) {}
+  constructor(
+    @InjectRepository(Restaurant) private readonly restaurantsRepository: Repository<Restaurant>,
+    @InjectRepository(MenuItem) private readonly menuItemsRepository: Repository<MenuItem>
+  ) {}
 
   async create(createRestaurantDto: CreateRestaurantDto): Promise<SerializedRestaurant> {
     const restaurant = await this.findByName(createRestaurantDto.restaurant_name);
@@ -72,10 +76,26 @@ export class RestaurantsService {
   async remove(id: number) {
     const restaurant = await this.restaurantsRepository.findOne({ where: { id } });
 
-    if (!restaurant) throw new NotFoundException('No customer with this id');
+    if (!restaurant) throw new NotFoundException('No restaurant with this id');
 
     const result = await this.restaurantsRepository.remove(restaurant);
 
     return result;
+  }
+
+  async createMenuItem(restaurantId: number, createMenuItem: CreateMenuItemDto) {
+    const restaurant = await this.findById(restaurantId);
+
+    if (!restaurant) throw new NotFoundException('No restaurant with this id');
+
+    const foundItem = await this.menuItemsRepository.findOne({ where: { restaurant: { id: restaurantId }, item_name: createMenuItem.item_name } });
+
+    if (foundItem) throw new ConflictException('Menu item already exists');
+
+    const menuItem = this.menuItemsRepository.create({ ...createMenuItem, restaurant });
+
+    const { restaurant: { password, ...restaurantValue }, ...others } = await this.menuItemsRepository.save(menuItem);
+
+    return {  ...others, restaurant: restaurantValue };
   }
 }

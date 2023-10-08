@@ -23,7 +23,10 @@ describe('RestaurantsController', () => {
     findById: jest.fn(id => restaurants[0]),
     updateAdmin: jest.fn((id, dto) => ({ id, ...dto, date_joined: new Date() })),
     update: jest.fn((id, dto) => ({ id, ...dto, date_joined: new Date() })),
-    remove: jest.fn(id => restaurants[0])
+    remove: jest.fn(id => restaurants[0]),
+    createMenuItem: jest.fn((id, dto) => { 
+      return Promise.resolve({ id: Date.now(), ...dto, restaurant: restaurants[0] }) 
+    }),
   }
 
   const mockAuthService = {
@@ -144,6 +147,24 @@ describe('RestaurantsController', () => {
       }
 
       expect(await controller.remove(req)).toEqual(restaurants[0])
+    })
+  })
+
+  describe('addMenuItem', () => {
+
+    it('should create a menu item', async () => {
+      const req = {
+        user: restaurant
+      }
+      const dto = { item_name: 'rice', price: 10 }
+
+      expect(await controller.addMenuItem(req, dto)).toEqual({
+        id: expect.any(Number),
+        ...dto,
+        restaurant: {
+          ...restaurants[0]
+        }
+      })
     })
   })
 });

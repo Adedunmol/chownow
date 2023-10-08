@@ -11,6 +11,7 @@ import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { Roles } from '../../auth/decorators/roles.decorator';
 import { Role } from '../../utils/role.enum';
 import { RolesGuard } from '../../auth/guards/roles.guard';
+import { CreateMenuItemDto } from '../dto/create-menu-item.dto';
 
 @ApiTags('Restaurants')
 @Controller('restaurants')
@@ -96,5 +97,14 @@ export class RestaurantsController {
   @ApiForbiddenResponse({ description: 'Forbidden' })
   removeAdmin(@Param('id', ParseIntPipe) id: number) {
     return this.restaurantsService.remove(id);
+  }
+
+  @Roles(Role.RESTAURANT)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @UsePipes(ValidationPipe)
+  @UseInterceptors(ClassSerializerInterceptor)
+  @Post('/menu-item')
+  addMenuItem(@Request() req, @Body() createMenuItemDto: CreateMenuItemDto) {
+    return this.restaurantsService.createMenuItem(req.user.id, createMenuItemDto)
   }
 }

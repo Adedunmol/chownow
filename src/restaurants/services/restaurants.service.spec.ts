@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { Restaurant } from '../../typeorm';
+import { MenuItem, Restaurant } from '../../typeorm';
 import { RestaurantsService } from './restaurants.service';
 import { ConflictException, NotFoundException } from '@nestjs/common';
 
@@ -8,6 +8,7 @@ describe('RestaurantsService', () => {
   let service: RestaurantsService;
 
   const restaurants = [{ id: Date.now(), restaurant_name: 'test1', date_joined: new Date(), role: 'Restaurant' }]
+  const menuItems = [{ id: Date.now(), item_name: 'rice', price: 10 }];
 
   const mockRestaurantsRepository = {
     create: jest.fn((dto) => dto),
@@ -21,9 +22,23 @@ describe('RestaurantsService', () => {
     remove: jest.fn(data => data)
   };
 
+  const mockMenuItemsRepository = {
+    create: jest.fn((dto) => dto),
+    save: jest.fn(dto => { 
+      return Promise.resolve({ id: Date.now(), ...dto, restaurant: restaurants[0] }) 
+    }),
+    findOne: jest.fn(query => null),
+  }
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [RestaurantsService, { provide: getRepositoryToken(Restaurant), useValue: mockRestaurantsRepository }],
+      providers: [RestaurantsService, { 
+        provide: getRepositoryToken(Restaurant), 
+        useValue: mockRestaurantsRepository 
+      }, {
+        provide: getRepositoryToken(MenuItem),
+        useValue: mockMenuItemsRepository
+      }],
     }).compile();
 
     service = module.get<RestaurantsService>(RestaurantsService);
@@ -146,7 +161,7 @@ describe('RestaurantsService', () => {
     it('should throw NotFoundException', async () => {
       mockRestaurantsRepository.findOne.mockImplementation((query) => null)
 
-      expect(async () => await service.remove(1)).rejects.toEqual(new NotFoundException('No customer with this id'))
+      expect(async () => await service.remove(1)).rejects.toEqual(new NotFoundException('No restaurant with this id'))
     })
 
     it('should remove a restaurant', async () => {
@@ -157,6 +172,37 @@ describe('RestaurantsService', () => {
         ...restaurants[0],
         role: 'Restaurant',
         date_joined: expect.any(Date)
+      })
+    })
+  })
+
+  describe('createMenuItem', () => {
+
+    it('should throw NotFoundException', async () => {
+      mockRestaurantsRepository.findOne.mockImplementation((query) => null)
+      const dto = { item_name: 'rice', price: 10 }
+      expect(async () => await service.createMenuItem(1, dto)).rejects.toEqual(new NotFoundException('No restaurant with this id'))
+    })
+
+    it('should throw ConflictException', async () => {
+      mockRestaurantsRepository.findOne.mockImplementation((query) => restaurants[0])
+      mockMenuItemsRepository.findOne.mockImplementation((query) => menuItems[0])
+
+      const dto = { item_name: 'rice', price: 10 }
+      expect(async () => await service.createMenuItem(1, dto)).rejects.toEqual(new ConflictException('Menu item already exists'))
+    })
+
+    it('should create a new menu item', async () => {
+      mockRestaurantsRepository.findOne.mockImplementation((query) => restaurants[0])
+      mockMenuItemsRepository.findOne.mockImplementation((query) => null)
+
+      const dto = { item_name: 'rice', price: 10 }
+      expect(await service.createMenuItem(1, dto)).toEqual({
+        id: expect.any(Number),
+        ...dto,
+        restaurant: {
+          ...restaurants[0]
+        }
       })
     })
   })
