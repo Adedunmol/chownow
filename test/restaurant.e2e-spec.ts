@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
-import { Customer, Restaurant } from '../src/typeorm';
+import { Customer, MenuItem, Restaurant } from '../src/typeorm';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { AuthModule } from '../src/auth/auth.module';
 import { ConfigModule } from '@nestjs/config';
@@ -67,6 +67,14 @@ describe('RestaurantController (e2e)', () => {
     })
   }
 
+  const mockMenuItemsRepository = {
+    create: jest.fn(dto => dto),
+    save: jest.fn(dto => {
+      return Promise.resolve({ id: Date.now(), ...dto, restaurant: restaurants[0] })
+    }),
+    findOne: jest.fn(query => null),
+  }
+
   const restaurant = {
     id: 1,
     restaurant_name: 'test',
@@ -91,6 +99,8 @@ describe('RestaurantController (e2e)', () => {
     .useValue(mockCustomersRepository)
     .overrideProvider(getRepositoryToken(Driver))
     .useValue(mockDriversRepository)
+    .overrideProvider(getRepositoryToken(MenuItem))
+    .useValue(mockMenuItemsRepository)
     .compile();
 
     app = moduleFixture.createNestApplication();
@@ -350,12 +360,59 @@ describe('RestaurantController (e2e)', () => {
       const data = { restaurant_name: 'test', password: 'Password@123' }
       const { access_token } = await (await request(app.getHttpServer()).post('/restaurants/login').send(data)).body;
 
-      console.log(access_token)
-
       jest.spyOn(JwtStrategy.prototype, 'validate').mockImplementation(async (payload) => Promise.resolve(restaurant))
       return request(app.getHttpServer())
       .delete('/restaurants/').set('Authorization', `Bearer ${access_token}`)
       .expect(200)
+    })
+  })
+
+  describe('(POST) /restautants/menu-item', () => {
+
+    it('should return 401 unauthorized', () => {
+
+      return request(app.getHttpServer())
+      .post('/restaurants/menu-item')
+      .expect(401)
+    })
+
+    it('should return 403 forbidden', async () => {
+      jest.spyOn(AuthService.prototype, 'validateCustomer').mockImplementation(async (username, password) => Promise.resolve(customer))
+      const data = { username: 'test', password: 'Password@123' }
+      const { access_token } = await (await request(app.getHttpServer()).post('/customers/login').send(data)).body;
+
+      const dto = { item_name: 'rice', price: 10 }
+
+      jest.spyOn(JwtStrategy.prototype, 'validate').mockImplementation(async (payload) => Promise.resolve(customer))
+      return request(app.getHttpServer())
+      .post('/restaurants/menu-item').set('Authorization', `Bearer ${access_token}`)
+      .expect(403)
+    })
+
+    it('should return 400 bad-request', async () => {
+      jest.spyOn(AuthService.prototype, 'validateRestaurant').mockImplementation(async (username, password) => Promise.resolve(restaurant))
+      const data = { username: 'test', password: 'Password@123' }
+      const { access_token } = await (await request(app.getHttpServer()).post('/customers/login').send(data)).body;
+
+      const dto = { item_name: 'rice', price: 10 }
+
+      jest.spyOn(JwtStrategy.prototype, 'validate').mockImplementation(async (payload) => Promise.resolve(restaurant))
+      return request(app.getHttpServer())
+      .post('/restaurants/menu-item').send().set('Authorization', `Bearer ${access_token}`)
+      .expect(400)
+    })
+
+    it('should return 400 bad-request', async () => {
+      jest.spyOn(AuthService.prototype, 'validateRestaurant').mockImplementation(async (username, password) => Promise.resolve(restaurant))
+      const data = { username: 'test', password: 'Password@123' }
+      const { access_token } = await (await request(app.getHttpServer()).post('/customers/login').send(data)).body;
+
+      const dto = { item_name: 'rice', price: 10 }
+
+      jest.spyOn(JwtStrategy.prototype, 'validate').mockImplementation(async (payload) => Promise.resolve(restaurant))
+      return request(app.getHttpServer())
+      .post('/restaurants/menu-item').send(dto).set('Authorization', `Bearer ${access_token}`)
+      .expect(201)
     })
   })
 });

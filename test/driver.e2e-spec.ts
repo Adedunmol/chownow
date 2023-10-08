@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
 import { CustomersModule } from '../src/customers/customers.module';
-import { Customer, Restaurant } from '../src/typeorm';
+import { Customer, MenuItem, Restaurant } from '../src/typeorm';
 import { getRepositoryToken, TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from '../src/auth/auth.module';
 import { ConfigModule } from '@nestjs/config';
@@ -55,6 +55,10 @@ describe('DriverController (e2e)', () => {
     remove: jest.fn(data => data),
   }
 
+  const mockMenuItemsRepository = {
+
+  }
+
   const admin = {
     id: 1,
     username: 'Admin',
@@ -81,6 +85,8 @@ describe('DriverController (e2e)', () => {
     .useValue(mockRestaurantsRepository)
     .overrideProvider(getRepositoryToken(Customer))
     .useValue(mockCustomersRepository)
+    .overrideProvider(getRepositoryToken(MenuItem))
+    .useValue(mockMenuItemsRepository)
     .compile();
 
     app = moduleFixture.createNestApplication();
