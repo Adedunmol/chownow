@@ -7,6 +7,7 @@ import { MenuItem, Restaurant } from '../../typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateMenuItemDto } from '../dto/create-menu-item.dto';
+import { UpdateMenuItemDto } from '../dto/update-menu-item.dto';
 
 @Injectable()
 export class RestaurantsService {
@@ -83,18 +84,37 @@ export class RestaurantsService {
     return result;
   }
 
-  async createMenuItem(restaurantId: number, createMenuItem: CreateMenuItemDto) {
+  async createMenuItem(restaurantId: number, createMenuItemDto: CreateMenuItemDto) {
     const restaurant = await this.findById(restaurantId);
 
     if (!restaurant) throw new NotFoundException('No restaurant with this id');
 
-    const foundItem = await this.menuItemsRepository.findOne({ where: { restaurant: { id: restaurantId }, item_name: createMenuItem.item_name } });
+    const foundItem = await this.menuItemsRepository.findOne({ where: { restaurant: { id: restaurantId }, item_name: createMenuItemDto.item_name } });
 
     if (foundItem) throw new ConflictException('Menu item already exists');
 
-    const menuItem = this.menuItemsRepository.create({ ...createMenuItem, restaurant });
+    const menuItem = this.menuItemsRepository.create({ ...createMenuItemDto, restaurant });
 
     const { restaurant: { password, ...restaurantValue }, ...others } = await this.menuItemsRepository.save(menuItem);
+
+    return {  ...others, restaurant: restaurantValue };
+  }
+
+  async updateMenuItem(menuItemId: number, restaurantId: number, updateMenuItemDto: UpdateMenuItemDto) {
+    const restaurant = await this.findById(restaurantId);
+
+    if (!restaurant) throw new NotFoundException('No restaurant with this id');
+
+    const foundItem = await this.menuItemsRepository.findOne({ where: { restaurant: { id: restaurantId }, id: menuItemId } });
+
+    if (!foundItem) throw new NotFoundException('No menu item with this id');
+
+    if (foundItem.item_name === updateMenuItemDto.item_name) throw new ConflictException('Menu item already exists');
+
+    foundItem.item_name = updateMenuItemDto.item_name || foundItem.item_name;
+    foundItem.price = updateMenuItemDto.price || foundItem.id;
+
+    const { restaurant: { password, ...restaurantValue }, ...others } = await this.menuItemsRepository.save(foundItem);
 
     return {  ...others, restaurant: restaurantValue };
   }

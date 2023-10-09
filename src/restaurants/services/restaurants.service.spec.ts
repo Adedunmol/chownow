@@ -206,4 +206,44 @@ describe('RestaurantsService', () => {
       })
     })
   })
+
+  describe('updateMenuItem', () => {
+
+    it('should throw NotFoundException for restaurant not found', async () => {
+      mockRestaurantsRepository.findOne.mockImplementation((query) => null)
+      const dto = { item_name: 'rice', price: 10 }
+      expect(async () => await service.updateMenuItem(1, 1, dto)).rejects.toEqual(new NotFoundException('No restaurant with this id'))
+    })
+
+    it('should throw NotFoundException for menu item not found', async () => {
+      mockRestaurantsRepository.findOne.mockImplementation((query) => restaurants[0])
+      mockMenuItemsRepository.findOne.mockImplementation((query) => null)
+
+      const dto = { item_name: 'rice', price: 10 }
+      expect(async () => await service.updateMenuItem(1, 1, dto)).rejects.toEqual(new NotFoundException('No menu item with this id'))
+    })
+
+    it('should throw ConflictException', async () => {
+      mockRestaurantsRepository.findOne.mockImplementation((query) => restaurants[0])
+      mockMenuItemsRepository.findOne.mockImplementation((query) => menuItems[0])
+
+      const dto = { item_name: 'rice', price: 10 }
+      expect(async () => await service.updateMenuItem(1, 1, dto)).rejects.toEqual(new ConflictException('Menu item already exists'))
+    })
+
+    it('should update a menu item', async () => {
+      mockRestaurantsRepository.findOne.mockImplementation((query) => restaurants[0])
+      mockMenuItemsRepository.findOne.mockImplementation((query) => menuItems[0])
+
+      const dto = { price: 15 }
+      expect(await service.updateMenuItem(1, 1, dto)).toEqual({
+        id: expect.any(Number),
+        item_name: 'rice',
+        ...dto,
+        restaurant: {
+          ...restaurants[0]
+        }
+      })
+    })
+  })
 });

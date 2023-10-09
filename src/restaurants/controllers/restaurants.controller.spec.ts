@@ -27,6 +27,9 @@ describe('RestaurantsController', () => {
     createMenuItem: jest.fn((id, dto) => { 
       return Promise.resolve({ id: Date.now(), ...dto, restaurant: restaurants[0] }) 
     }),
+    updateMenuItem: jest.fn((menuId, restaurantId, dto) => { 
+      return Promise.resolve({ id: Date.now(), ...dto, restaurant: restaurants[0] }) 
+    }),
   }
 
   const mockAuthService = {
@@ -159,6 +162,24 @@ describe('RestaurantsController', () => {
       const dto = { item_name: 'rice', price: 10 }
 
       expect(await controller.addMenuItem(req, dto)).toEqual({
+        id: expect.any(Number),
+        ...dto,
+        restaurant: {
+          ...restaurants[0]
+        }
+      })
+    })
+  })
+
+  describe('updateMenuItem', () => {
+
+    it('should create a menu item', async () => {
+      const req = {
+        user: restaurant
+      }
+      const dto = { item_name: 'rice', price: 10 }
+
+      expect(await controller.updateMenuItem(1, req, dto)).toEqual({
         id: expect.any(Number),
         ...dto,
         restaurant: {

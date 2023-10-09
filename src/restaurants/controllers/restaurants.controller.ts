@@ -12,6 +12,7 @@ import { Roles } from '../../auth/decorators/roles.decorator';
 import { Role } from '../../utils/role.enum';
 import { RolesGuard } from '../../auth/guards/roles.guard';
 import { CreateMenuItemDto } from '../dto/create-menu-item.dto';
+import { UpdateMenuItemDto } from '../dto/update-menu-item.dto';
 
 @ApiTags('Restaurants')
 @Controller('restaurants')
@@ -103,8 +104,26 @@ export class RestaurantsController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @UsePipes(ValidationPipe)
   @UseInterceptors(ClassSerializerInterceptor)
-  @Post('/menu-item')
+  @ApiOkResponse({ description: 'Success' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+  @ApiForbiddenResponse({ description: 'Forbidden' })
+  @ApiBadRequestResponse({ description: 'Bad Request' })
+  @ApiConflictResponse({ description: 'Conflict' })
+  @Post('/menu-items')
   addMenuItem(@Request() req, @Body() createMenuItemDto: CreateMenuItemDto) {
     return this.restaurantsService.createMenuItem(req.user.id, createMenuItemDto)
+  }
+
+  @Roles(Role.RESTAURANT)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @UsePipes(ValidationPipe)
+  @UseInterceptors(ClassSerializerInterceptor)
+  @ApiOkResponse({ description: 'Success' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+  @ApiForbiddenResponse({ description: 'Forbidden' })
+  @ApiConflictResponse({ description: 'Conflict' })
+  @Patch('/menu-items/:id')
+  updateMenuItem(@Param('id', ParseIntPipe) id: number, @Request() req, @Body() updateMenuItemDto: UpdateMenuItemDto) {
+    return this.restaurantsService.updateMenuItem(id, req.user.id, updateMenuItemDto)
   }
 }
