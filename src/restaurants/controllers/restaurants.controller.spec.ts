@@ -12,7 +12,7 @@ describe('RestaurantsController', () => {
   }
 
   const restaurants = [{ id: Date.now(), restaurant_name: 'test1', date_joined: new Date(), role: 'Restaurant' }]
-
+  const menuItems = [{ id: Date.now(), item_name: 'rice', price: 10 }];
 
   const mockRestaurantsService = {
     create: jest.fn((dto) => { 
@@ -30,6 +30,7 @@ describe('RestaurantsController', () => {
     updateMenuItem: jest.fn((menuId, restaurantId, dto) => { 
       return Promise.resolve({ id: Date.now(), ...dto, restaurant: restaurants[0] }) 
     }),
+    getMenuItem: jest.fn(id => menuItems[0])
   }
 
   const mockAuthService = {
@@ -186,6 +187,14 @@ describe('RestaurantsController', () => {
           ...restaurants[0]
         }
       })
+    })
+  })
+
+  describe('getMenuItem', () => {
+
+    it('should return a menu item', async () => {
+
+      expect(await controller.getMenuItem(1)).toEqual(menuItems[0])
     })
   })
 });

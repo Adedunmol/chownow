@@ -118,4 +118,12 @@ export class RestaurantsService {
 
     return {  ...others, restaurant: restaurantValue };
   }
+
+  async getMenuItem(menuItemId: number) {
+    const menuItem = await this.menuItemsRepository.findOne({ where: { id: menuItemId } });
+
+    if (!menuItem) throw new NotFoundException('No menu item with this id');
+
+    return menuItem;
+  }
 }

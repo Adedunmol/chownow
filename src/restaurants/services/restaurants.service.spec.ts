@@ -246,4 +246,18 @@ describe('RestaurantsService', () => {
       })
     })
   })
+
+  describe('getMenuItem', () => {
+
+    it('should get a menu item', async () => {
+      mockRestaurantsRepository.findOne.mockImplementation((query) => menuItems[0])
+
+      expect(await service.getMenuItem(1)).toEqual(menuItems[0])
+    })
+
+    it('should return null', async () => {
+
+      expect(await service.getMenuItem(1)).toEqual(menuItems[0])
+    })
+  })
 });

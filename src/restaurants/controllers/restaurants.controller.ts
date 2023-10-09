@@ -126,4 +126,13 @@ export class RestaurantsController {
   updateMenuItem(@Param('id', ParseIntPipe) id: number, @Request() req, @Body() updateMenuItemDto: UpdateMenuItemDto) {
     return this.restaurantsService.updateMenuItem(id, req.user.id, updateMenuItemDto)
   }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('/menu-items/:id')
+  @UseInterceptors(ClassSerializerInterceptor)
+  @ApiOkResponse({ description: 'Success' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+  getMenuItem(@Param('id', ParseIntPipe) id: number) {
+    return this.restaurantsService.getMenuItem(id);
+  }
 }
