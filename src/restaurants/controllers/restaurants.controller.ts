@@ -135,4 +135,13 @@ export class RestaurantsController {
   getMenuItem(@Param('id', ParseIntPipe) id: number) {
     return this.restaurantsService.getMenuItem(id);
   }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('/menu-items/')
+  @UseInterceptors(ClassSerializerInterceptor)
+  @ApiOkResponse({ description: 'Success' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+  getMenuItems(@Request() req) {
+    return this.restaurantsService.getMenuItems(req.user.id);
+  }
 }

@@ -28,6 +28,7 @@ describe('RestaurantsService', () => {
       return Promise.resolve({ id: Date.now(), ...dto, restaurant: restaurants[0] }) 
     }),
     findOne: jest.fn(query => null),
+    find: jest.fn(query => menuItems)
   }
 
   beforeEach(async () => {
@@ -250,14 +251,29 @@ describe('RestaurantsService', () => {
   describe('getMenuItem', () => {
 
     it('should get a menu item', async () => {
-      mockRestaurantsRepository.findOne.mockImplementation((query) => menuItems[0])
+      mockMenuItemsRepository.findOne.mockImplementation((query) => menuItems[0])
 
       expect(await service.getMenuItem(1)).toEqual(menuItems[0])
     })
 
-    it('should return null', async () => {
+    it('should throw NotFoundException', async () => {
+      mockMenuItemsRepository.findOne.mockImplementation((query) => null)
 
-      expect(await service.getMenuItem(1)).toEqual(menuItems[0])
+      expect(async () => await service.getMenuItem(1)).rejects.toEqual(new NotFoundException('No menu item with this id'))
+    })
+  })
+
+  describe('getMenuItems', () => {
+
+    it('should get menu items', async () => {
+
+      expect(await service.getMenuItems(1)).toEqual(menuItems)
+    })
+
+    it('should return null', async () => {
+      mockRestaurantsRepository.findOne.mockImplementation(query => null)
+
+      expect(async () => await service.getMenuItems(1)).rejects.toEqual(new NotFoundException('No restaurant with this id'))
     })
   })
 });

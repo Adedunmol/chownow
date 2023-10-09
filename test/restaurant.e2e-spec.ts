@@ -498,4 +498,26 @@ describe('RestaurantController (e2e)', () => {
           .expect(401)
     })
   })
+
+  describe('(GET) /restaurants/menu-items/', () => {
+
+    it('should get menu items and return 200 success (users)', async () => {
+      jest.spyOn(AuthService.prototype, 'validateCustomer').mockImplementation(async (username, password) => Promise.resolve(customer))
+      const data = { username: 'test', password: 'Password@123' }
+      const { access_token } = await (await request(app.getHttpServer()).post('/customers/login').send(data)).body;
+
+      jest.spyOn(JwtStrategy.prototype, 'validate').mockImplementation(async (payload) => Promise.resolve(customer))
+      return request(app.getHttpServer())
+          .get('/restaurants/menu-items/').set('Authorization', `Bearer ${access_token}`)
+          .expect(200)
+    })
+
+    it('should return 401 unauthorized', () => {
+      jest.spyOn(AuthService.prototype, 'validateRestaurant').mockImplementation(async (username, password) => Promise.resolve(null))
+      const data = { restaurant_name: 'test', password: 'Password@123' }
+      return request(app.getHttpServer())
+          .get('/restaurants/menu-items')
+          .expect(401)
+    })
+  })
 });

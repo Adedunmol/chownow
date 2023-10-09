@@ -30,7 +30,8 @@ describe('RestaurantsController', () => {
     updateMenuItem: jest.fn((menuId, restaurantId, dto) => { 
       return Promise.resolve({ id: Date.now(), ...dto, restaurant: restaurants[0] }) 
     }),
-    getMenuItem: jest.fn(id => menuItems[0])
+    getMenuItem: jest.fn(id => menuItems[0]),
+    getMenuItems: jest.fn(id => menuItems),
   }
 
   const mockAuthService = {
@@ -195,6 +196,17 @@ describe('RestaurantsController', () => {
     it('should return a menu item', async () => {
 
       expect(await controller.getMenuItem(1)).toEqual(menuItems[0])
+    })
+  })
+
+  describe('getMenuItems', () => {
+
+    it('should return menu items', async () => {
+      const req = {
+        user: restaurants[0]
+      }
+
+      expect(await controller.getMenuItems(req)).toEqual(menuItems)
     })
   })
 });

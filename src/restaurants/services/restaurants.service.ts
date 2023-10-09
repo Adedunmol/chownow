@@ -126,4 +126,14 @@ export class RestaurantsService {
 
     return menuItem;
   }
+
+  async getMenuItems(restaurantId: number) {
+    const restaurant = await this.findById(restaurantId);
+
+    if (!restaurant) throw new NotFoundException('No restaurant with this id');
+
+    const menuItems = await this.menuItemsRepository.find({ where: { restaurant: { id: restaurantId } } });
+
+    return menuItems;
+  }
 }
