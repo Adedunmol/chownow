@@ -136,4 +136,18 @@ export class RestaurantsService {
 
     return menuItems;
   }
+
+  async removeMenuItem(restaurantId: number, menuItemId: number) {
+    const restaurant = await this.findById(restaurantId);
+
+    if (!restaurant) throw new NotFoundException('No restaurant with this id');
+
+    const menuItem = await this.menuItemsRepository.findOne({ where: { restaurant: { id: restaurantId }, id: menuItemId } });
+
+    if (!menuItem) throw new NotFoundException('No menu item with this id');
+
+    const result = await this.menuItemsRepository.remove(menuItem);
+
+    return result;
+  }
 }

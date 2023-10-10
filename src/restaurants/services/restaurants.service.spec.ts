@@ -28,7 +28,8 @@ describe('RestaurantsService', () => {
       return Promise.resolve({ id: Date.now(), ...dto, restaurant: restaurants[0] }) 
     }),
     findOne: jest.fn(query => null),
-    find: jest.fn(query => menuItems)
+    find: jest.fn(query => menuItems),
+    remove: jest.fn(data => data)
   }
 
   beforeEach(async () => {
@@ -274,6 +275,29 @@ describe('RestaurantsService', () => {
       mockRestaurantsRepository.findOne.mockImplementation(query => null)
 
       expect(async () => await service.getMenuItems(1)).rejects.toEqual(new NotFoundException('No restaurant with this id'))
+    })
+  })
+
+  describe('removeMenuItem', () => {
+
+    it('should throw NotFoundException for restaurants', async () => {
+      mockRestaurantsRepository.findOne.mockImplementation((query) => null)
+
+      expect(async () => await service.removeMenuItem(1, 1)).rejects.toEqual(new NotFoundException('No restaurant with this id'))
+    })
+
+    it('should throw NotFoundException for menu items', async () => {
+      mockRestaurantsRepository.findOne.mockImplementation((query) => restaurants[0])
+      mockMenuItemsRepository.findOne.mockImplementation((query) => null)
+
+      expect(async () => await service.removeMenuItem(1, 1)).rejects.toEqual(new NotFoundException('No menu item with this id'))
+    })
+
+    it('should remove a menu item', async () => {
+      mockRestaurantsRepository.findOne.mockImplementation((query) => restaurants[0])
+      mockMenuItemsRepository.findOne.mockImplementation((query) => menuItems[0])
+
+      expect(await service.removeMenuItem(1, 1)).toEqual(menuItems[0])
     })
   })
 });

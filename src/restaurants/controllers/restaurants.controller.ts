@@ -100,6 +100,25 @@ export class RestaurantsController {
     return this.restaurantsService.remove(id);
   }
 
+  @UseGuards(JwtAuthGuard)
+  @Get('menu-items/all')
+  @UseInterceptors(ClassSerializerInterceptor)
+  @ApiOkResponse({ description: 'Success' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+  getMenuItems(@Request() req) {
+    return this.restaurantsService.getMenuItems(req.user.id);
+  }
+
+  
+  @UseGuards(JwtAuthGuard)
+  @Get('menu-items/:id/')
+  @UseInterceptors(ClassSerializerInterceptor)
+  @ApiOkResponse({ description: 'Success' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+  getMenuItem(@Param('id', ParseIntPipe) id: number) {
+    return this.restaurantsService.getMenuItem(id);
+  }
+
   @Roles(Role.RESTAURANT)
   @UseGuards(JwtAuthGuard, RolesGuard)
   @UsePipes(ValidationPipe)
@@ -109,7 +128,7 @@ export class RestaurantsController {
   @ApiForbiddenResponse({ description: 'Forbidden' })
   @ApiBadRequestResponse({ description: 'Bad Request' })
   @ApiConflictResponse({ description: 'Conflict' })
-  @Post('/menu-items')
+  @Post('menu-items')
   addMenuItem(@Request() req, @Body() createMenuItemDto: CreateMenuItemDto) {
     return this.restaurantsService.createMenuItem(req.user.id, createMenuItemDto)
   }
@@ -122,26 +141,17 @@ export class RestaurantsController {
   @ApiUnauthorizedResponse({ description: 'Unauthorized' })
   @ApiForbiddenResponse({ description: 'Forbidden' })
   @ApiConflictResponse({ description: 'Conflict' })
-  @Patch('/menu-items/:id')
+  @Patch('menu-items/:id')
   updateMenuItem(@Param('id', ParseIntPipe) id: number, @Request() req, @Body() updateMenuItemDto: UpdateMenuItemDto) {
     return this.restaurantsService.updateMenuItem(id, req.user.id, updateMenuItemDto)
   }
 
-  @UseGuards(JwtAuthGuard)
-  @Get('/menu-items/:id')
-  @UseInterceptors(ClassSerializerInterceptor)
+  @Roles(Role.RESTAURANT)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Delete('menu-items/:id')
   @ApiOkResponse({ description: 'Success' })
   @ApiUnauthorizedResponse({ description: 'Unauthorized' })
-  getMenuItem(@Param('id', ParseIntPipe) id: number) {
-    return this.restaurantsService.getMenuItem(id);
-  }
-
-  @UseGuards(JwtAuthGuard)
-  @Get('/menu-items/')
-  @UseInterceptors(ClassSerializerInterceptor)
-  @ApiOkResponse({ description: 'Success' })
-  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
-  getMenuItems(@Request() req) {
-    return this.restaurantsService.getMenuItems(req.user.id);
+  removeMenuItem(@Param('id', ParseIntPipe) id: number, @Request() req) {
+    return this.restaurantsService.removeMenuItem(req.user.id, id);
   }
 }

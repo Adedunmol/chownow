@@ -32,6 +32,7 @@ describe('RestaurantsController', () => {
     }),
     getMenuItem: jest.fn(id => menuItems[0]),
     getMenuItems: jest.fn(id => menuItems),
+    removeMenuItem: jest.fn((restaurantId, menuItemId) => ({ ...menuItems[0], restaurant: restaurants[0] }))
   }
 
   const mockAuthService = {
@@ -207,6 +208,17 @@ describe('RestaurantsController', () => {
       }
 
       expect(await controller.getMenuItems(req)).toEqual(menuItems)
+    })
+  })
+
+  describe('removeMenuItem', () => {
+
+    it('should remove and return a menu item', async () => {
+      const req = {
+        user: restaurant
+      }
+
+      expect(await controller.removeMenuItem(1, req)).toEqual({ ...menuItems[0], restaurant: restaurants[0] })
     })
   })
 });

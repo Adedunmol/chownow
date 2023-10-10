@@ -73,6 +73,8 @@ describe('RestaurantController (e2e)', () => {
       return Promise.resolve({ id: Date.now(), ...dto, restaurant: restaurants[0] })
     }),
     findOne: jest.fn(query => null),
+    find: jest.fn(() => menuItems),
+    remove: jest.fn(data => data),
   }
 
   const restaurant = {
@@ -410,7 +412,7 @@ describe('RestaurantController (e2e)', () => {
 
       jest.spyOn(JwtStrategy.prototype, 'validate').mockImplementation(async (payload) => Promise.resolve(restaurant))
       return request(app.getHttpServer())
-      .post('/restaurants/menu-items').send(dto).set('Authorization', `Bearer ${access_token}`)
+      .post('/restaurants/menu-items/').send(dto).set('Authorization', `Bearer ${access_token}`)
       .expect(201)
     })
   })
@@ -477,6 +479,28 @@ describe('RestaurantController (e2e)', () => {
     })
   })
 
+  describe('(GET) /restaurants/menu-items/all', () => {
+
+    it('should get menu items and return 200 success (users)', async () => {
+      jest.spyOn(AuthService.prototype, 'validateCustomer').mockImplementation(async (username, password) => Promise.resolve(customer))
+      const data = { username: 'test', password: 'Password@123' }
+      const { access_token } = await (await request(app.getHttpServer()).post('/customers/login').send(data)).body;
+
+      jest.spyOn(JwtStrategy.prototype, 'validate').mockImplementation(async (payload) => Promise.resolve(customer))
+      return request(app.getHttpServer())
+          .get('/restaurants/menu-items/all').set('Authorization', `Bearer ${access_token}`)
+          .expect(200)
+    })
+
+    it('should return 401 unauthorized', () => {
+      jest.spyOn(AuthService.prototype, 'validateRestaurant').mockImplementation(async (username, password) => Promise.resolve(null))
+      const data = { restaurant_name: 'test', password: 'Password@123' }
+      return request(app.getHttpServer())
+          .get('/restaurants/menu-items/all')
+          .expect(401)
+    })
+  })
+
   describe('(GET) /restaurants/menu-items/:id', () => {
 
     it('should get a menu item and return 200 success (users)', async () => {
@@ -499,25 +523,27 @@ describe('RestaurantController (e2e)', () => {
     })
   })
 
-  describe('(GET) /restaurants/menu-items/', () => {
-
-    it('should get menu items and return 200 success (users)', async () => {
-      jest.spyOn(AuthService.prototype, 'validateCustomer').mockImplementation(async (username, password) => Promise.resolve(customer))
-      const data = { username: 'test', password: 'Password@123' }
-      const { access_token } = await (await request(app.getHttpServer()).post('/customers/login').send(data)).body;
-
-      jest.spyOn(JwtStrategy.prototype, 'validate').mockImplementation(async (payload) => Promise.resolve(customer))
-      return request(app.getHttpServer())
-          .get('/restaurants/menu-items/').set('Authorization', `Bearer ${access_token}`)
-          .expect(200)
-    })
+  describe('(DELETE) /restaurants/menu-items/:id', () => {
 
     it('should return 401 unauthorized', () => {
-      jest.spyOn(AuthService.prototype, 'validateRestaurant').mockImplementation(async (username, password) => Promise.resolve(null))
-      const data = { restaurant_name: 'test', password: 'Password@123' }
+      const data = { username: 'test', first_name: 'test', last_name: 'user' }
+
       return request(app.getHttpServer())
-          .get('/restaurants/menu-items')
-          .expect(401)
+      .delete('/restaurants/menu-items/1')
+      .expect(401)
+    })
+
+    it('should delete a menu item and return 200 success', async () => {
+      jest.spyOn(AuthService.prototype, 'validateRestaurant').mockImplementation(async (username, password) => Promise.resolve(restaurant))
+      const data = { restaurant_name: 'test', password: 'Password@123' }
+      const { access_token } = await (await request(app.getHttpServer()).post('/restaurants/login').send(data)).body;
+
+      jest.spyOn(JwtStrategy.prototype, 'validate').mockImplementation(async (payload) => Promise.resolve(restaurant))
+      return request(app.getHttpServer())
+      .delete('/restaurants/menu-items/1').set('Authorization', `Bearer ${access_token}`)
+      .expect(200)
     })
   })
+  
+
 });
