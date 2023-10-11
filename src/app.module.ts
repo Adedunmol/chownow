@@ -7,6 +7,7 @@ import entities from './typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { RestaurantsModule } from './restaurants/restaurants.module';
 import { DriversModule } from './drivers/drivers.module';
+import { AddressesModule } from './addresses/addresses.module';
 
 
 @Module({
@@ -23,7 +24,7 @@ import { DriversModule } from './drivers/drivers.module';
       synchronize: true
     }),
     inject: [ConfigService]
-  }), CustomersModule, RestaurantsModule, DriversModule],
+  }), CustomersModule, RestaurantsModule, DriversModule, AddressesModule],
   controllers: [AppController],
   providers: [AppService],
 })
