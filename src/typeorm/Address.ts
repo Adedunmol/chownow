@@ -10,9 +10,6 @@ export class Address {
     id: number;
 
     @Column()
-    unit_number: number;
-
-    @Column()
     street_number: number;
 
     @Column()
@@ -28,7 +25,7 @@ export class Address {
     region: string;
 
     @Column()
-    postal_code: number;
+    postal_code: string;
 
     @ManyToOne(() => Country, (country) => country.address)
     country: Country;

@@ -30,6 +30,6 @@ export class CreateAddressDto {
 
     @IsString()
     @IsNotEmpty()
-    @ApiProperty({ default: 'test' })
+    @ApiProperty({ default: '232123' })
     postal_code: string;
 }
