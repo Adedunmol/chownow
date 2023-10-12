@@ -5,7 +5,7 @@ export class CreateAddressDto {
     
     @IsNumber()
     @IsNotEmpty()
-    @ApiProperty({ default: 'test' })
+    @ApiProperty({ default: 10 })
     street_number: number;
 
     @IsString()
@@ -16,7 +16,7 @@ export class CreateAddressDto {
     @IsString()
     @IsOptional()
     @ApiProperty({ default: 'test str' })
-    address_line2: string;
+    address_line2?: string;
 
     @IsString()
     @IsNotEmpty()

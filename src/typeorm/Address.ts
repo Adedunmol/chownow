@@ -1,5 +1,5 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany } from 'typeorm';
-import { Country } from './Country';
+// import { Country } from './Country';
 import { CustomerAddress } from './Customer_Address';
 import { Restaurant } from './Restaurant';
 
@@ -27,8 +27,8 @@ export class Address {
     @Column()
     postal_code: string;
 
-    @ManyToOne(() => Country, (country) => country.address)
-    country: Country;
+    // @ManyToOne(() => Country, (country) => country.address)
+    // country: Country;
 
     @OneToMany(() => CustomerAddress, (customer_address) => customer_address.address)
     customer_address: CustomerAddress[];

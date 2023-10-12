@@ -28,8 +28,8 @@ export class AddressesController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @UsePipes(ValidationPipe)
   @Post('restaurants')
-  createRestaurantAddress(@Body() createAddressDto: CreateAddressDto) {
-    return this.addressesService.create(createAddressDto);
+  createRestaurantAddress(@Request() req, @Body() createAddressDto: CreateAddressDto) {
+    return this.addressesService.createRestaurantAddress(req.user.id, createAddressDto);
   }
 
   @Get()
