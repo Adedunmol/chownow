@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
-import { Customer, MenuItem, Restaurant } from '../src/typeorm';
+import { Address, Customer, CustomerAddress, DeliveryDriver, MenuItem, Restaurant } from '../src/typeorm';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { AuthModule } from '../src/auth/auth.module';
 import { ConfigModule } from '@nestjs/config';
@@ -13,6 +13,7 @@ import { DriversModule } from '../src/drivers/drivers.module';
 import { Driver } from '../src/drivers/entities/driver.entity';
 import { Role } from '../src/utils/role.enum';
 import { JwtStrategy } from '../src/auth/strategies/jwt.strategy';
+import { AddressesModule } from '../src/addresses/addresses.module';
 
 
 describe('RestaurantController (e2e)', () => {
@@ -90,19 +91,26 @@ describe('RestaurantController (e2e)', () => {
     login: jest.fn()
   }
 
+  const mockAddressRepository = {} 
+  const mockCustomerAddressRepository = {}
+
   beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [ConfigModule.forRoot({ isGlobal: true }), RestaurantsModule, AuthModule, DriversModule, CustomersModule],
+      imports: [ConfigModule.forRoot({ isGlobal: true }), RestaurantsModule, AuthModule,  DriversModule, CustomersModule, AddressesModule],
       providers: [AuthService, JwtService]
     })
     .overrideProvider(getRepositoryToken(Restaurant))
     .useValue(mockRestaurantsRepository)
     .overrideProvider(getRepositoryToken(Customer))
     .useValue(mockCustomersRepository)
-    .overrideProvider(getRepositoryToken(Driver))
+    .overrideProvider(getRepositoryToken(DeliveryDriver))
     .useValue(mockDriversRepository)
     .overrideProvider(getRepositoryToken(MenuItem))
     .useValue(mockMenuItemsRepository)
+    .overrideProvider(getRepositoryToken(Address))
+    .useValue(mockAddressRepository)
+    .overrideProvider(getRepositoryToken(CustomerAddress))
+    .useValue(mockCustomerAddressRepository)
     .compile();
 
     app = moduleFixture.createNestApplication();
