@@ -6,7 +6,7 @@ import { Address, Customer, CustomerAddress, Restaurant } from '../typeorm';
 import { AuthModule } from '../auth/auth.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Address, CustomerAddress, Restaurant, Customer])],
+  imports: [TypeOrmModule.forFeature([Address, CustomerAddress, Restaurant, Customer]), forwardRef(() => AuthModule)],
   controllers: [AddressesController],
   providers: [AddressesService],
   exports: [AddressesService]

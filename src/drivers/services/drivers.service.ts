@@ -4,13 +4,13 @@ import { encodePassword } from '../../utils/bcrypt';
 import { Repository } from 'typeorm';
 import { CreateDriverDto } from '../dto/create-driver.dto';
 import { UpdateDriverAdminDto, UpdateDriverDto } from '../dto/update-driver.dto';
-import { Driver } from '../entities/driver.entity';
 import { SerializedDriver } from '../types';
+import { DeliveryDriver } from '../../typeorm';
 
 @Injectable()
 export class DriversService {
   
-  constructor(@InjectRepository(Driver) private readonly driversRepository: Repository<Driver>) {}
+  constructor(@InjectRepository(DeliveryDriver) private readonly driversRepository: Repository<DeliveryDriver>) {}
 
   async create(createDriverDto: CreateDriverDto): Promise<SerializedDriver> {
     const driver = await this.findByUsername(createDriverDto.username);

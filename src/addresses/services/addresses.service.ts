@@ -12,7 +12,7 @@ export class AddressesService {
     @InjectRepository(Address) private readonly addressesService: Repository<Address>,
     @InjectRepository(CustomerAddress) private readonly customerAddressesService: Repository<CustomerAddress>,
     @InjectRepository(Restaurant) private readonly restaurantsService: Repository<Restaurant>,
-    @InjectRepository(Customer) private readonly customersService: Repository<Restaurant>,
+    @InjectRepository(Customer) private readonly customersService: Repository<Customer>,
   ) {}
 
   create(createAddressDto: CreateAddressDto) {

@@ -12,6 +12,7 @@ import { CustomersModule } from '../src/customers/customers.module';
 import { DriversModule } from '../src/drivers/drivers.module';
 import { AuthModule } from '../src/auth/auth.module';
 import { JwtService } from '@nestjs/jwt';
+import { AuthService } from '../src/auth/auth.service';
 
 describe('AddressController (e2e)', () => {
   let app: INestApplication;
@@ -25,19 +26,19 @@ describe('AddressController (e2e)', () => {
 
   beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [ConfigModule.forRoot({ isGlobal: true }), CustomersModule, AddressesModule,  DriversModule, RestaurantsModule, AuthModule],
-      providers: [AddressesService, JwtService]
+      imports: [ConfigModule.forRoot({ isGlobal: true }), AddressesModule, DriversModule, CustomersModule, RestaurantsModule, AuthModule,], //
+      providers: [AuthService, JwtService]
     })
-    .overrideProvider(getRepositoryToken(DeliveryDriver))
-    .useValue(mockDriverRepository)
     .overrideProvider(getRepositoryToken(Address))
     .useValue(mockAddressRepository)
     .overrideProvider(getRepositoryToken(CustomerAddress))
     .useValue(mockCustomerAddressRepository)
-    .overrideProvider(getRepositoryToken(Customer))
-    .useValue(mockCustomerRepository)
     .overrideProvider(getRepositoryToken(Restaurant))
     .useValue(mockRestaurantRepository)
+    .overrideProvider(getRepositoryToken(Customer))
+    .useValue(mockCustomerRepository)
+    .overrideProvider(getRepositoryToken(DeliveryDriver))
+    .useValue(mockDriverRepository)
     .overrideProvider(getRepositoryToken(MenuItem))
     .useValue(mockMenuItemRepository)
     .compile();

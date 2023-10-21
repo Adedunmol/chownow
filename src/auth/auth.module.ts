@@ -11,9 +11,10 @@ import { RestaurantsModule } from '../restaurants/restaurants.module';
 import { DriversModule } from '../drivers/drivers.module';
 import { DriverStrategy } from './strategies/driver.strategy';
 import { RolesGuard } from '../auth/guards/roles.guard';
+import { AddressesModule } from '../addresses/addresses.module';
 
 @Module({
-  imports: [forwardRef(() => CustomersModule), forwardRef(() => RestaurantsModule), forwardRef(() => DriversModule), PassportModule, JwtModule.registerAsync({
+  imports: [forwardRef(() => CustomersModule), forwardRef(() => RestaurantsModule), forwardRef(() => DriversModule), forwardRef(() => AddressesModule), PassportModule, JwtModule.registerAsync({
     imports: [ConfigModule],
     useFactory: async (configService: ConfigService) => ({
       secret: configService.get('JWT_SECRET'),
